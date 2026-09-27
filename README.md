@@ -7,6 +7,9 @@ model to do.
 Snapshot of 27 September 2026. Data, instruments and the record of what my own
 instruments got wrong are all here.
 
+**New here? [WHY.md](WHY.md) is the short essay version — what this counts and why
+it is worth counting. Two minutes, no numbers to hold in your head.**
+
 ## The short version
 
 **36,550 servers.** 21,254 publishers. Two thirds of it published under an
