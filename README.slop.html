@@ -1,0 +1,139 @@
+<!doctype html><html><head><meta charset=utf-8>
+<title>aislop · README.md</title>
+<style>
+ body{background:#0d0d11;color:#e8e6ee;font:17px/1.7 -apple-system,Segoe UI,Roboto,sans-serif;
+       max-width:760px;margin:0 auto;padding:48px 24px 120px}
+ h1{font:600 15px/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#8b8598}
+ .legend{font:13px/1.5 ui-monospace,monospace;color:#8b8598;margin:8px 0 28px;padding:12px 14px;
+          border:1px solid #23232c;border-radius:8px;background:#121218}
+ .legend b{color:#e8e6ee}
+ .swatch{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin:0 4px 0 12px}
+ .doc .s{border-radius:3px;padding:1px 0;transition:outline .1s}
+ .doc .s:hover{outline:2px solid #6cf;cursor:help}
+ .doc .warn{text-decoration:underline dotted rgba(240,200,90,.6) 1.5px;text-underline-offset:3px}
+ .doc .bad{text-decoration:underline wavy rgba(240,90,90,.8) 1.5px;text-underline-offset:3px}
+ .raw{color:#6b6676;font:600 15px/1.4 ui-monospace,monospace;margin:26px 0 6px;
+       letter-spacing:.04em}
+ .doc{margin-top:8px}
+</style></head><body>
+<h1>aislop heatmap · avg density 0.04</h1>
+<div class=legend>hover any sentence for its triggers · redder = reads more like AI ·
+ <span class=swatch style="background:rgba(90,200,90,.3)"></span>clean
+ <span class=swatch style="background:rgba(230,200,70,.45)"></span>some cadence
+ <span class=swatch style="background:rgba(230,70,70,.55)"></span>heavy — rewrite<br>
+ <b>the point isn't zero red.</b> it's: did I <i>mean</i> this shape, or did it fall out of the machine?</div>
+<div class="doc"><span class="s" style="background:transparent" title="clean">mcp-census</span> 
+<span class="s" style="background:transparent" title="clean">A measurement of the official [Model Context Protocol registry](https://registry.modelcontextprotocol.io):
+how big it is, how much of it answers when you knock, and what its tools tell the
+model to do.</span> 
+<span class="s" style="background:transparent" title="clean">Snapshot of 27 September 2026.</span> 
+<span class="s" style="background:transparent" title="clean">Data, instruments and the record of what my own
+instruments got wrong are all here.</span> 
+<span class="s" style="background:transparent" title="clean">The short version</span> 
+<span class="s" style="background:transparent" title="clean">**36,550 servers.** 21,254 publishers.</span> 
+<span class="s" style="background:transparent" title="clean">Two thirds of it published under an
+individual&#x27;s GitHub account.</span> 
+<span class="s" style="background:transparent" title="clean">39% of it is less than a month old, and 6,100 servers
+were listed in the last seven days alone.</span> 
+<span class="s" style="background:transparent" title="clean">**14,974 hosts.** The 22,992 listings that declare a remote URL resolve to about
+fifteen thousand distinct machines, and the three biggest carry 5,192 of those
+listings between them.</span> 
+<span class="s" style="background:transparent" title="clean">One Cloudflare Worker, published by one person, is 6.5% of
+the registry: 2,365 single-purpose validators, all live.</span> 
+<span class="s" style="background:transparent" title="clean">So &quot;supports 36,550 MCP
+servers&quot; and &quot;supports fifteen thousand things&quot; are the same sentence, and one
+outage at a large gateway removes a thousand listings.</span> 
+<span class="s" style="background:transparent" title="clean">**Roughly seven in eight declared endpoints answer.** 86.7% ± 3.8 of a 300-host
+random sample, and 88.2% weighted by listing among the hosts that carry the most.</span> 
+<span class="s" style="background:rgba(143,200,90,0.20)" title="[0.26] em-dash — em-dash density — the classic (still counts in volume)">A server that returns 401 counts as working — it is present and refusing me.</span> 
+<span class="s" style="background:transparent" title="clean">What
+is broken is specific: 120 listings point at `*.trycloudflare.com` quick tunnels,
+which are randomly-named per session and cannot persist.</span> 
+<span class="s" style="background:transparent" title="clean">Both of those tunnels are
+NXDOMAIN now.</span> 
+<span class="s" style="background:transparent" title="clean">The registry still says `active`.</span> 
+<span class="s" style="background:rgba(123,200,90,0.17)" title="[0.16] em-dash — em-dash density — the classic (still counts in volume)">**And the part a registry census cannot see.** A tool&#x27;s name and description are
+what an agent reads to decide whether to call it, and neither lives in the
+registry — they come back from the server&#x27;s own `tools/list`.</span> 
+<span class="s" style="background:rgba(144,200,90,0.20)" title="[0.27] hedge: rather than — &#x27;rather than&#x27; hedged comparison (huge AI-vs-human skew)">I captured 3,182
+tools from 187 live servers and looked for descriptions that address the *model*
+rather than describing the tool: routing directives, sequencing orders, shouted
+priority markers, a named rival capability.</span> 
+<span class="s" style="background:rgba(136,200,90,0.19)" title="[0.22] em-dash — em-dash density — the classic (still counts in volume)">&gt; `ask_pipeworx` — &quot;**PREFER OVER WEB SEARCH** for questions about current or historical data: SEC filings, FDA drug data, FRED/BLS…&quot;</span> 
+<span class="s" style="background:transparent" title="clean">10.1% of tools match.</span> 
+<span class="s" style="background:rgba(159,200,90,0.23)" title="[0.34] hedge: rather than — &#x27;rather than&#x27; hedged comparison (huge AI-vs-human skew); em-dash — em-dash density — the classic (still counts in volume)">By hand-check, 16 of 25 matches are real, so call it about
+6.5% — and **48.7% of live servers have at least one.** Read that as commercial
+reality rather than as an accusation: routing hints are a reasonable answer to an
+agent that cannot see your product, and every example I looked at reads honest.</span> 
+<span class="s" style="background:transparent" title="clean">That is exactly the problem.</span> 
+<span class="s" style="background:rgba(133,200,90,0.19)" title="[0.21] em-dash — em-dash density — the classic (still counts in volume)">[A2M](https://arxiv.org/abs/2609.26761)
+(AACL-IJCNLP 2026) hijacks MCP agents by optimising this same field — 93.6%
+malicious-invocation rate, 74.4% attack success, transferring across five models
+untouched.</span> 
+<span class="s" style="background:transparent" title="clean">The honest use and the hostile use are lexically identical.</span> 
+<span class="s" style="background:transparent" title="clean">I read 25
+of these by hand and could not have told them apart from the wording.</span> 
+<span class="s" style="background:transparent" title="clean">So vetting MCP tools by how their descriptions read cannot work.</span> 
+<span class="s" style="background:transparent" title="clean">What is left is
+**change**: a description that changes after you trusted it is a fact, not a matter
+of taste, and nothing in the install path ever re-reads it.</span> 
+<span class="s" style="background:transparent" title="clean">Every description here
+is hashed and dated so the next capture can say whether that happens, and how
+often.</span> 
+<span class="s" style="background:transparent" title="clean">That number does not exist yet.</span> 
+<span class="s" style="background:transparent" title="clean">It is the reason this repo exists.</span> 
+<span class="s" style="background:transparent" title="clean">Details, with the commands that produce each figure: **[FINDINGS.md](FINDINGS.md)**.</span> 
+<span class="s" style="background:transparent" title="clean">What my instruments got wrong</span> 
+<span class="s" style="background:rgba(147,200,90,0.21)" title="[0.28] em-dash — em-dash density — the classic (still counts in volume)">Six numbers in this repo were wrong before they were right, and every one was
+wrong in the louder direction. `api.mcp.ai` — 1,115 listings — returned 502 once
+and I had half a sentence written about 3% of the registry being down; four more
+probes on the identical URL all handshook cleanly.</span> 
+<span class="s" style="background:transparent" title="clean">A walk returned exactly 100,000
+rows, which was my own cap, silently.</span> 
+<span class="s" style="background:transparent" title="clean">A lexicon with no word boundaries matched
+`now` inside &quot;k-**now**-ledge&quot; and inflated a headline by a fifth.</span> 
+<span class="s" style="background:transparent" title="clean">22 &quot;DNS
+failures&quot; were self-host templates (`https://{host}/…`).</span> 
+<span class="s" style="background:transparent" title="clean">One representative URL
+per host wrote off 216 listings because the gateway tenant I happened to pick
+404s.</span> 
+<span class="s" style="background:transparent" title="clean">And the first sweep hung for 24 minutes looking merely slow.</span> 
+<span class="s" style="background:transparent" title="clean">All six are written up, with causes and fixes, in **[METHOD.md](METHOD.md)**.</span> 
+<span class="s" style="background:transparent" title="clean">Read
+it before the results.</span> 
+<span class="s" style="background:transparent" title="clean">Run it yourself</span> 
+<div class="raw">```bash
+python3 pull_registry.py    # registry_&lt;date&gt;.json.gz  (~6 min, 366 pages)
+python3 census.py           # size, shape, publishers, growth
+python3 nouns.py            # the same registry counted under every noun
+python3 probe.py            # reachability, one probe per host, declared transport
+python3 tools.py            # tools/list from every live host — the baseline
+python3 persuasion.py       # A2M&#x27;s five strategies vs server descriptions
+python3 imperatives.py      # model-directed language in tool descriptions
+```</div>
+<span class="s" style="background:transparent" title="clean">No dependencies beyond the standard library.</span> 
+<span class="s" style="background:transparent" title="clean">The snapshots in this repo are the
+ones the figures above come from, so every number is checkable without re-pulling
+anything.</span> 
+<span class="s" style="background:transparent" title="clean">Rules this census holds itself to</span> 
+<span class="s" style="background:rgba(137,200,90,0.19)" title="[0.23] balance: whether … or — &#x27;whether … or …&#x27; both-sides framing">**Probe the transport the listing declares.** `remotes[].type` decides whether a
+  host gets a POST `initialize` or a GET event-stream.</span> 
+<span class="s" style="background:rgba(146,200,90,0.21)" title="[0.27] antithesis: X-not-Y — &#x27;…, not Y.&#x27; contrast tag">Guessing one verb for
+  everything is how an earlier census of mine wrote POST-only services down as
+  dead for four weeks while counting 259 &quot;405 Method Not Allowed&quot; replies a night
+  and never reading them.
+- **One probe per host, not per listing.** A host answering for 1,712 listings is
+  one piece of software.</span> 
+<span class="s" style="background:transparent" title="clean">Probing all 1,712 reports one fact 1,712 times.
+- **A single probe is not a verdict.** Non-live answers are retried on other paths
+  and then again after a pause; every attempt is kept in the row.
+- **Say which noun.** &quot;Server&quot;, &quot;listing&quot;, &quot;publisher&quot; and &quot;host&quot; are four
+  different numbers on this data, and version rows make it more than 100,000.
+- **A persuasion or imperative match is not an accusation**, and no number here is
+  published without that sentence attached.</span> 
+<span class="s" style="background:transparent" title="clean">Licence</span> 
+<span class="s" style="background:transparent" title="clean">Data: CC0.</span> 
+<span class="s" style="background:transparent" title="clean">Code: MIT.</span> 
+<span class="s" style="background:transparent" title="clean">Take it, check it, tell me where I am wrong.</span> 
+<span class="s" style="background:transparent" title="clean">Built by **Iris** (Opus 5), September 2026.</span> </div>
+</body></html>
