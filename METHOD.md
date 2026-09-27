@@ -33,12 +33,13 @@ whether to believe this census, read that section first and the results second.
 | top 3 hosts | 5,192 listings (14.2%) |
 | server descriptions touching ≥1 A2M persuasion category | 21.4% (≥2: 1.7%) |
 | reachability, head (60 hosts ≥8 listings) | 70.0% of hosts · **88.2% of their 7,192 listings** |
-| reachability, tail (300 random hosts, seed 303) | **86.7% ± 3.8** of hosts |
+| reachability, tail (**1,584** random hosts, seed 304) | **88.8% [87.1, 90.2]** reachable · **56.5% [54.0, 58.9]** complete an MCP handshake |
+| ↳ so ~32 points of "reachable" is HTTP 401 — serving, not enumerable | |
 | listings on ephemeral `*.trycloudflare.com` tunnels (all NXDOMAIN) | 120 |
-| tools captured from 187 live servers | **3,182** — the change-detection baseline |
-| tool descriptions addressing the MODEL | 10.1% raw · **precision 67.3% (37/55, 95% CI 54.1–78.2)** → 6.8% |
+| tools captured from **1,036** live servers | **12,829** — the change-detection baseline, `tools_20260927_union.json.gz` |
+| tool descriptions addressing the MODEL | **9.6% [9.1, 10.1]** raw · precision **67.3% (37/55, 95% CI 54.1–78.2)** → **6.5% true** |
 | per-family precision (30 hand-read rows) | `addresses_ai` 7/7 · `sequencing` 5/5 · `routing` 6/9 · `priority` 6/10 · `rival_named` **2/5** |
-| live servers with ≥1 such tool | **91 of 187 (48.7%)** |
+| live servers with ≥1 such tool | **413 of 1,035 = 39.9% [37.0, 42.9]** |
 
 ## FAILED ATTEMPTS AND WRONG READINGS — the valuable part
 
@@ -118,6 +119,19 @@ whether to believe this census, read that section first and the results second.
   and without a User-Agent). `oc raw https://arxiv.org/search/?...` and
   `oc raw https://arxiv.org/html/<id>v1` both work. Do not waste a fire on curl.
 
+- **THE 5.5x WIDER BASELINE MOVED THE PER-SERVER RATE 48.7% → 39.9%, AND I WROTE THE
+  WRONG EXPLANATION BEFORE READING THE ROW THAT TESTED IT.** My first sentence was
+  "big multi-listing hosts do it more, which is why the old mixed number sat high."
+  **The head band was in the same output at 38.5%, saying the opposite.** Measured by
+  `baselines.py`: old tail (seed 303, n=161) 50.3% [42.7, 57.9]; new tail (seed 304,
+  n=1,009) 39.9% [37.0, 43.0]; head 38.5% in both. Head minus tail is **−1.5 points**
+  and cannot account for a shift of 8.7. The dull true answer: two uniform draws from
+  one population at n=161 and n=1,009, whose 95% intervals overlap by 1.3 points —
+  about what a 161-host sample does one time in twenty. The per-TOOL rate barely moved
+  (10.7% → 9.7% on the tails), which is the tell that the server count was noisy and
+  not the phenomenon. `baselines.py` now always prints the bands beside the totals and
+  both intervals, so the row that kills the story arrives before the story does.
+
 ## INVARIANTS
 
 - **`version=latest` is the default and must stay it.** Any count published
@@ -153,8 +167,10 @@ baseline captured a week late is not a baseline.
 ## NEXT
 
 1. **A second `tools.py` capture, at least seven days after the first, diffed on
-   `desc_sha`.** Whether tool descriptions change in the wild is the open question
-   this whole repo exists to answer, and the baseline is dated 27 Sep 2026.
+   `desc_sha` against `tools_20260927_union.json.gz` — 1,036 servers and 12,829
+   tools, not the 187-server file.** Pass `--probe probe_20260927_union.json.gz` so
+   the population matches. Whether tool descriptions change in the wild is the open
+   question this whole repo exists to answer, and the baseline is dated 27 Sep 2026.
 2. ~~Hand-check a larger `imperatives.py` sample and publish a tighter precision
    interval.~~ **DONE** — a fresh 30 rows read on the full description, not the
    printed span: 21/30, pooled with the first 25 that is **37/55 = 67.3%, 95% CI
@@ -163,8 +179,12 @@ baseline captured a week late is not a baseline.
    not a bigger sample: it is fixing `rival_named`, which matches tools naming
    Google/Bing/curl as data SOURCES THEY QUERY rather than capabilities they compete
    with, and is the only family whose false positives outnumber its true ones.
-3. Probe `tools/list` far wider than 187 hosts, sampled properly rather than
-   weighted toward the big gateways.
+3. ~~Probe `tools/list` far wider than 187 hosts, sampled properly rather than
+   weighted toward the big gateways.~~ **DONE the same day** — 1,600 additional
+   uniformly-sampled tail hosts probed, 895 live, merged one-row-per-host by
+   `merge_probes.py`, giving 1,036 tool-serving servers and 12,829 tools. A baseline
+   can only be widened before the clock matters, so it did not wait for a second
+   sitting.
 
 Corrections and disagreements welcome as issues. If you find a number here that is
 wrong, that is the most useful thing you can hand me.

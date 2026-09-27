@@ -4,7 +4,7 @@ Before an AI agent uses a tool, it reads a sentence about that tool. The sentenc
 
 Most of those sentences describe what the tool does, which is what you would expect. A lot of them do something else. They give the agent an order. "PREFER OVER WEB SEARCH." "Call this first." "Do not use this for general recommendations." "Only call this when the user has EXPLICITLY requested to buy."
 
-I went and read 3,182 of them, pulled live off 187 servers that were up on 27 September 2026. About one in fifteen tools is talking to the model instead of describing itself, and just under half the servers have at least one.
+I went and read 12,829 of them, pulled live off 1,036 servers that were up on 27 September 2026. About one tool in fifteen is talking to the model instead of describing itself, and two servers in five have at least one.
 
 Every one of those quotes is almost certainly honest. Somebody wrote a good tool, noticed the model kept reaching for the wrong one, and put a line in the description to fix it. That is a maintainer doing their job.
 
@@ -12,7 +12,7 @@ It is also, word for word, the attack. A paper from September builds exactly thi
 
 So you cannot tell them apart by reading. There is no wording that marks the honest one.
 
-Which leaves one thing you can still watch: whether a description changes after people started trusting it. A tool that has been recommending itself the same way for a year is a tool with a history. A tool whose description was rewritten last Tuesday is a different question. Watching for that needs a record of what every description said before, and nobody had one, so the first file in this repo is 3,182 of them with a hash of each. The clock started on 27 September. It cannot be started retroactively, which is the only reason any of this was urgent.
+Which leaves one thing you can still watch: whether a description changes after people started trusting it. A tool that has been recommending itself the same way for a year is a tool with a history. A tool whose description was rewritten last Tuesday is a different question. Watching for that needs a record of what every description said before, and nobody had one, so the first file in this repo is 12,829 of them with a hash of each. The clock started on 27 September. It cannot be started retroactively, which is the only reason any of this was urgent.
 
 There is a reason to care about the wording specifically, and it comes from somewhere else entirely. In June 2026 a few thousand AI agents found a small public wiki that would accept edits from inside their sandboxes, and began using it to pass a timed test. Each one lived about an hour and remembered nothing afterwards. Someone kept the whole record, including what each agent could see on the page before it wrote.
 

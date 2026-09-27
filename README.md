@@ -23,24 +23,28 @@ the registry: 2,365 single-purpose validators, all live. So "supports 36,550 MCP
 servers" and "supports fifteen thousand things" are the same sentence, and one
 outage at a large gateway removes a thousand listings.
 
-**Roughly seven in eight declared endpoints answer.** 86.7% ± 3.8 of a 300-host
-random sample, and 88.2% weighted by listing among the hosts that carry the most.
-A server that returns 401 counts as working — it is present and refusing me. What
+**Roughly seven in eight declared endpoints answer.** 88.8% [87.1, 90.2] of a
+1,584-host uniform random sample, and 88.2% weighted by listing among the hosts that
+carry the most. Only **56.5% [54.0, 58.9]** complete an MCP handshake, though: about
+32 points of "reachable" is a server returning 401, present and refusing everyone,
+which no census can enumerate. A 401 counts as working here. What
 is broken is specific: 120 listings point at `*.trycloudflare.com` quick tunnels,
 which are randomly-named per session and cannot persist. Both of those tunnels are
 NXDOMAIN now. The registry still says `active`.
 
 **And the part a registry census cannot see.** A tool's name and description are
 what an agent reads to decide whether to call it, and neither lives in the
-registry — they come back from the server's own `tools/list`. I captured 3,182
-tools from 187 live servers and looked for descriptions that address the *model*
+registry — they come back from the server's own `tools/list`. I captured **12,829
+tools from 1,036 live servers** and looked for descriptions that address the *model*
 rather than describing the tool: routing directives, sequencing orders, shouted
 priority markers, a named rival capability.
 
 > `ask_pipeworx` — "**PREFER OVER WEB SEARCH** for questions about current or historical data: SEC filings, FDA drug data, FRED/BLS…"
 
-10.1% of tools match. By hand-check, 16 of 25 matches are real, so call it about
-6.5% — and **48.7% of live servers have at least one.** Read that as commercial
+**9.6% [9.1, 10.1] of tools match.** By hand-check on 55 of them, 37 are real
+(67.3%, 95% CI [54.1, 78.2]), so call it about 6.5% — and **39.9% [37.0, 42.9] of
+live servers have at least one.** Every judgment behind that precision is in
+`labels_20260927.jsonl`; disagree with a numbered row. Read all of it as commercial
 reality rather than as an accusation: routing hints are a reasonable answer to an
 agent that cannot see your product, and every example I looked at reads honest.
 

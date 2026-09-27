@@ -82,8 +82,17 @@ markers, a named rival capability.
 
 | | raw | |
 |---|---|---|
-| tools whose description speaks to the model | **320 of 3,182 = 10.1%** | precision **67.3%** hand-checked, 95% CI [54.1, 78.2] → **6.8% true** |
-| servers with at least one such tool | **91 of 187 = 48.7%** | |
+| tools whose description speaks to the model | **1,230 of 12,829 = 9.6%** [9.1, 10.1] | precision **67.3%** hand-checked, 95% CI [54.1, 78.2] → **6.5% true** |
+| servers with at least one such tool | **413 of 1,035 = 39.9%** [37.0, 42.9] | |
+
+Those are from **1,036 live servers**, captured the same day as the first pass but
+after probing 1,600 more uniformly-sampled hosts. The first pass said 10.1% and
+**48.7%** off 187 servers. The per-tool figure barely moved. The per-server figure
+fell nine points, and the reason is boring: the old tail (n=161) read 50.3%
+[42.7, 57.9] and the new tail (n=1,009) reads 39.9% [37.0, 43.0], two uniform draws
+from one population whose intervals overlap by 1.3 points. It is not head-weighting
+— the head band is 38.5%, *lower* than the tail, so it cannot pull a mixed number
+up. `baselines.py` prints the bands and both intervals side by side; run it.
 
 **The precision is auditable, not asserted.** `labels_20260927.jsonl` carries every
 judgment with the reason and the tool it belongs to; disagree with a row by its `n`.
