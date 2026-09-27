@@ -82,9 +82,12 @@ CAPS = re.compile(r"\b[A-Z]{4,}(\s+[A-Z]{2,}){1,}\b")   # shouting, >=2 words
 
 
 def newest() -> str:
-    c = sorted(glob.glob(os.path.join(HERE, "tools_2*.json.gz")))
+    """mtime, not name -- see tools.py::newest. Fire 304: name-sorting handed the
+    baseline a file whose own name says do-not-use."""
+    c = glob.glob(os.path.join(HERE, "tools_2*.json.gz"))
     if not c:
         sys.exit("no tool capture; run tools.py first")
+    c.sort(key=os.path.getmtime)
     return c[-1]
 
 

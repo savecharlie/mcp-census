@@ -36,7 +36,8 @@ whether to believe this census, read that section first and the results second.
 | reachability, tail (300 random hosts, seed 303) | **86.7% ± 3.8** of hosts |
 | listings on ephemeral `*.trycloudflare.com` tunnels (all NXDOMAIN) | 120 |
 | tools captured from 187 live servers | **3,182** — the change-detection baseline |
-| tool descriptions addressing the MODEL | 10.1% raw · **precision 64% hand-checked** → ~6.5% |
+| tool descriptions addressing the MODEL | 10.1% raw · **precision 67.3% (37/55, 95% CI 54.1–78.2)** → 6.8% |
+| per-family precision (30 hand-read rows) | `addresses_ai` 7/7 · `sequencing` 5/5 · `routing` 6/9 · `priority` 6/10 · `rival_named` **2/5** |
 | live servers with ≥1 such tool | **91 of 187 (48.7%)** |
 
 ## FAILED ATTEMPTS AND WRONG READINGS — the valuable part
@@ -66,7 +67,12 @@ whether to believe this census, read that section first and the results second.
   whole document" (ordinary prose, not routing) and "**the model** disagreeing
   with a better-informed market" (a weather model, not an LLM). Keep the loose
   lexicon and report precision from a hand-check; do not tighten it into
-  unfalsifiability.
+  unfalsifiability. **AND: the span is the right thing to SHOW and the wrong thing
+  to JUDGE.** Hand-checking from the ±55-char span instead of the full description
+  flips 3 of 30 rows, every one in the same direction — the span reads descriptive
+  and the instruction sits further along (`clean_table`'s "Use when a CSV came out
+  of Excel" is at character 600 of 681). A span-based hand-check understates
+  precision by about ten points.
 - **THE FIRST SWEEP HUNG FOR 24 MINUTES AND LOOKED STALLED, NOT BROKEN.** Two
   worker threads sat in `do_poll` on ESTABLISHED connections while the other six
   idled on an empty queue, and because `ThreadPoolExecutor.map` yields in
@@ -82,11 +88,30 @@ whether to believe this census, read that section first and the results second.
   pointed at the operator's own machine. A census reporting its own inability to
   address something as absence is the same error as the GET-only x402 sweep.
   There is now a `template` verdict, excluded from reachability rates.
-- **ONE REPRESENTATIVE URL PER HOST WROTE OFF 216 LISTINGS.**
-  `server.smithery.ai` is a multi-tenant gateway and the tenant path I happened to
-  pick 404s. `probe.py` now tries up to three distinct paths on a host before the
-  timed retries. The uncorrected run is kept as
-  `probe_20260927_v1_singlepath.json.gz` for the diff.
+- **ONE REPRESENTATIVE URL PER HOST WROTE OFF 216 LISTINGS — AND THE FIX FOUND THE
+  EVIDENCE AND THE REPORTING STEP THREW IT AWAY.** `server.smithery.ai` is a
+  multi-tenant gateway and the tenant path I happened to pick 404s. `probe.py` tries
+  up to three distinct paths, and on smithery the second returned **HTTP 401** — a
+  server saying *I am here, authenticate*. Then the summary line
+  `best = next((t for t in tries if t[0] == "live"), tries[-1])` found nothing `live`
+  and fell back to the LAST attempt, another 404. **So the first published snapshot
+  recorded `http-err` for a host its own probe had just proved was serving, and this
+  file claimed 216 listings had been rescued when zero were.** Corrected on a second
+  pass the same day: `verdict.py` ranks attempts by how much each says about the HOST
+  (live > auth > http-ok > template > http-err > timeout > conn-err > dns) and every
+  reader recomputes from the stored attempts, so the published data files are right
+  on read without being rewritten. Scope: **2 hosts, 233 listings, 1.0% of remote
+  listings.** Keeping every attempt in the row is the only reason this cost nothing
+  to fix.
+- **`newest()` SORTED BY NAME AND SILENTLY PREFERRED A FILE WHOSE OWN NAME SAYS
+  DO-NOT-USE.** `sorted(['probe_20260927.json.gz',
+  'probe_20260927_v1_singlepath.json.gz'])` puts the superseded single-path run
+  last, so `tools.py` built its baseline from the wrong population. It happened not
+  to matter — both files have an identical live-host set — which is luck, not
+  design. Sorted by **mtime** now, in `tools.py` and `imperatives.py` both, and
+  `tools.py` records `probe_source` and `n_hosts_attempted` in its output: a
+  baseline whose population is unknown cannot be diffed against anything, and the
+  first artefact recorded neither.
 - **`limit=1000` returns HTTP 422.** The page cap is 100. `sortBy` does not exist
   here; pagination is a cursor equal to the last row's `name:version`.
 - **The arXiv Atom API returns 406 from this machine** (both http and https, with
@@ -130,8 +155,14 @@ baseline captured a week late is not a baseline.
 1. **A second `tools.py` capture, at least seven days after the first, diffed on
    `desc_sha`.** Whether tool descriptions change in the wild is the open question
    this whole repo exists to answer, and the baseline is dated 27 Sep 2026.
-2. Hand-check a larger `imperatives.py` sample and publish a tighter precision
-   interval. The current one is 16 of 25.
+2. ~~Hand-check a larger `imperatives.py` sample and publish a tighter precision
+   interval.~~ **DONE** — a fresh 30 rows read on the full description, not the
+   printed span: 21/30, pooled with the first 25 that is **37/55 = 67.3%, 95% CI
+   [54.1, 78.2]**. Every judgment is in `labels_20260927.jsonl` with its reason, so
+   you can disagree with a numbered row instead of with me. The next useful move is
+   not a bigger sample: it is fixing `rival_named`, which matches tools naming
+   Google/Bing/curl as data SOURCES THEY QUERY rather than capabilities they compete
+   with, and is the only family whose false positives outnumber its true ones.
 3. Probe `tools/list` far wider than 187 hosts, sampled properly rather than
    weighted toward the big gateways.
 

@@ -58,6 +58,8 @@ import socket
 import ssl
 import sys
 import time
+
+import verdict
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -261,8 +263,11 @@ def main() -> int:
                 tries.append(probe(u, k, a.timeout)); used.append(u)
                 if tries[-1][0] == "live":
                     break
-        best = next((t for t in tries if t[0] == "live"), tries[-1])
-        v, code, det, ms = best
+        # FIRE 304: this used to be `next(live) or tries[-1]`, which threw away a
+        # 401 -- a host SAYING it is there -- in favour of whatever the last
+        # attempt happened to be. See verdict.py; it cost 233 listings.
+        chosen = min(tries, key=lambda t: verdict.rank(t[0]))
+        v, code, det, ms = chosen
         return {"host": h, "band": band, "listings": n[h], "url": u,
                 "declared_type": k, "verdict": v, "http": code,
                 "detail": det, "ms": ms, "example_name": nm,

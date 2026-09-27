@@ -48,6 +48,8 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
+import verdict
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 UA = "iris-mcp-census/0.1 (+https://github.com/savecharlie)"
 PROTO = "2025-06-18"
@@ -58,7 +60,14 @@ def sha(s: str) -> str:
 
 
 def newest(pat: str) -> str | None:
-    c = sorted(p for p in glob.glob(os.path.join(HERE, pat)) if "allver" not in p)
+    """SORT BY TIME, NOT NAME. Measured fire 304: `sorted()` over
+    ['probe_20260927.json.gz', 'probe_20260927_v1_singlepath.json.gz'] returns the
+    *superseded* single-path run last, so this function silently handed fire 303's
+    baseline the file whose own name says do-not-use. It happened to have an
+    identical live-host set, so nothing was wrong -- by luck, not by design. mtime
+    is the only ordering that means what this function claims to mean."""
+    c = [p for p in glob.glob(os.path.join(HERE, pat)) if "allver" not in p]
+    c.sort(key=os.path.getmtime)
     return c[-1] if c else None
 
 
@@ -117,6 +126,7 @@ def main() -> int:
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
 
+    src = "--hosts"
     if a.hosts:
         jobs = [{"host": h, "url": "https://" + h, "declared_type": "streamable-http",
                  "listings": 0} for h in a.hosts.split(",")]
@@ -124,8 +134,11 @@ def main() -> int:
         p = a.probe or newest("probe_2*.json.gz")
         if not p:
             sys.exit("no probe file; run probe.py first")
+        src = os.path.basename(p)
         pd = json.load(gzip.open(p, "rt"))
-        jobs = [r for r in pd["rows"] if r["verdict"] == "live"]
+        # recomputed, not as-stored: fire 303's rows record `http-err` for two
+        # gateways that answered 401 on a second path. verdict.py explains.
+        jobs = [r for r in pd["rows"] if verdict.row_verdict(r) == "live"]
         print(f"# from {os.path.basename(p)}: {len(jobs)} live hosts")
 
     sse = [j for j in jobs if j.get("declared_type") == "sse"]
@@ -179,6 +192,7 @@ def main() -> int:
     outp = a.out or os.path.join(HERE, f"tools_{stamp}.json.gz")
     with gzip.open(outp, "wt") as f:
         json.dump({"when": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                   "probe_source": src, "n_hosts_attempted": len(jobs),
                    "sse_skipped": [j["host"] for j in sse], "rows": out}, f)
     print(f"wrote {outp}")
     return 0

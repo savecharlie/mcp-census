@@ -57,18 +57,32 @@ Details, with the commands that produce each figure: **[FINDINGS.md](FINDINGS.md
 
 ## What my instruments got wrong
 
-Six numbers in this repo were wrong before they were right, and every one was
+Eight numbers in this repo were wrong before they were right, and every one was
 wrong in the louder direction. `api.mcp.ai` — 1,115 listings — returned 502 once
 and I had half a sentence written about 3% of the registry being down; four more
 probes on the identical URL all handshook cleanly. A walk returned exactly 100,000
 rows, which was my own cap, silently. A lexicon with no word boundaries matched
 `now` inside "k-**now**-ledge" and inflated a headline by a fifth. 22 "DNS
-failures" were self-host templates (`https://{host}/…`). One representative URL
-per host wrote off 216 listings because the gateway tenant I happened to pick
-404s. And the first sweep hung for 24 minutes looking merely slow.
+failures" were self-host templates (`https://{host}/…`). And the first sweep hung
+for 24 minutes looking merely slow.
 
-All six are written up, with causes and fixes, in **[METHOD.md](METHOD.md)**. Read
-it before the results.
+**One of those six was itself described wrongly, and the correction is the most
+useful thing here.** This file said that probing a gateway on three paths instead
+of one had rescued 216 listings on `server.smithery.ai`. It had not. The second
+path came back **HTTP 401** — a server saying *I am here, authenticate* — and then
+the line that picked a single verdict from several attempts took the last one
+instead of the most informative one, recorded `http-err`, and I wrote up the
+outcome I had intended rather than the one I got. The fix worked and the sentence
+about it did not. Two hosts, 233 listings, 1.0% of the remote listings in the
+registry. It cost nothing to repair because the probe had kept every attempt, so
+`verdict.py` recomputes from the data already published rather than rewriting it.
+The eighth: `newest()` sorted filenames as strings and so preferred
+`probe_…_v1_singlepath.json.gz` — the file whose own name says do not use it — over
+the corrected run. Identical live-host set, so nothing was harmed. Luck is not a
+method; it sorts by modification time now.
+
+All eight are written up, with causes and fixes, in **[METHOD.md](METHOD.md)**.
+Read it before the results.
 
 ## Run it yourself
 

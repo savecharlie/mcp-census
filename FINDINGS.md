@@ -82,8 +82,48 @@ markers, a named rival capability.
 
 | | raw | |
 |---|---|---|
-| tools whose description speaks to the model | **320 of 3,182 = 10.1%** | precision 64% by hand-check → **~6.5% true** |
+| tools whose description speaks to the model | **320 of 3,182 = 10.1%** | precision **67.3%** hand-checked, 95% CI [54.1, 78.2] → **6.8% true** |
 | servers with at least one such tool | **91 of 187 = 48.7%** | |
+
+**The precision is auditable, not asserted.** `labels_20260927.jsonl` carries every
+judgment with the reason and the tool it belongs to; disagree with a row by its `n`.
+Two independent samples from the same 320-tool population: fire 303 read 25 and got
+16 (64.0%); fire 304 read a fresh 30, drawn `random.Random(304)`, and got 21
+(70.0%, Wilson [52.1, 83.3]). Pooled **37/55 = 67.3%**, and the earlier 64% sits
+inside the interval — so the published number held up against an independent draw,
+which is the only reason to bother running the second one.
+
+**Precision is very uneven across the five families, and that is the useful part:**
+
+| family | true | false |
+|---|---|---|
+| `addresses_ai` | 7 | **0** |
+| `sequencing` | 5 | **0** |
+| `routing` | 6 | 3 |
+| `priority` | 6 | 4 |
+| `rival_named` | 2 | **3** |
+
+`addresses_ai` ("call this when the user asks…") and `sequencing` ("call this
+before…") did not produce a single false positive in 30 rows. `rival_named` is the
+weak one and it fails in a specific, fixable way: it matches tools that name Google,
+Bing or curl as *data sources they query*, not as capabilities they are competing
+with — a DNS checker comparing "public resolvers (Google, Cloudflare, Quad9)", a
+calendar merging "live Google/Microsoft calendar data". `priority` fails on
+preconditions wearing emphasis: four of its false positives are one host's
+"SIGN-IN REQUIRED" boilerplate, repeated per tool, so **a single prolific publisher's
+house style can move a per-tool rate**. That is an argument for reporting per-server
+as well, which 48.7% already does.
+
+**And a methodological finding about my own reporting.** Fire 303 changed the
+examples to print the matched span ±55 characters, because printing the first 130
+characters showed "examples" that did not contain their own evidence. That fix was
+right. But judging *from* the span is not the same as judging the description: **3
+of these 30 rows flip, all in the same direction** — the span looks descriptive and
+the instruction sits further along (`get_generation`'s "Poll this after
+generate_video" ; `clean_table`'s "Use when a CSV came out of Excel", at character
+600 of 681). So the span is the right thing to *show* and the wrong thing to
+*judge*, and a span-based hand-check would have understated precision by about ten
+points.
 
 Verbatim, from a gateway carrying 1,712 registry listings:
 
