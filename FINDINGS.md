@@ -213,21 +213,75 @@ directive as a description gets, and v2 missed it twice over: `use_when`'s
 `for\s+\w+` cannot match `Use for 'recent` because the next character is an
 apostrophe, and `sibling_named` required an underscore in the tool name, so every
 camelCase sibling was invisible. Both fixed; M14 now fires on both families.
-**The 15% floor is therefore the PRE-fix number, and the post-fix floor is
-unmeasured.** It needs a fresh draw, which is the first thing the next pass should do.
+**The 15% floor is therefore the PRE-fix number.** The post-fix floor was drawn in
+fire 306 and is the next section.
 (The first attempted fix was itself a regression — replacing `\w+` with `\S` left a
 trailing `\b` that then failed on ordinary words and dropped the corpus rate from
 36.4% to 34.1%. Caught by watching the count, not by reasoning.)
+
+### THE POST-FIX FLOOR, and why it ends the word-list approach — fire 306
+
+A second 40-row floor, seed 3061, drawn from the 8,112 tools the *repaired* detector
+misses, hand-read against the identical bar: `labels_floor2_20260928.jsonl`. **Zero
+rows overlap the seed-3051 draw**, and the missed population moved 0.6% between them
+(8,164 → 8,112), so the two are independent samples of the same thing and may be
+pooled.
+
+| floor | result | 95% Wilson |
+|---|---|---|
+| #1, seed 3051 (pre-fix draw) | 6/40 = 15.0% | [7.1, 29.1] |
+| #2, seed 3061 (post-fix draw) | 7/40 = 17.5% | [8.7, 32.0] |
+| **pooled** | **13/80 = 16.25%** | **[9.7, 25.8]** |
+
+The repair did not move the floor. That is not a failure of the repair — the corpus
+rate went 9.59% → 36.77% — it means the residual gap was never the thing the repair
+was aimed at. Four rows I found genuinely hard are marked BORDERLINE in the label file
+and all four fell FALSE; admitting them would put the floor at 27.5%, so the
+*direction* of any bar error is known and it is upward.
+
+**The part that matters, and it is a negative result.** Every one of the seven true
+misses had a phrasing no family covers, so I wrote a candidate pattern for each —
+`call this to` (M2), `use it as` (M31), French `à appeler quand` (M18), `read/take it
+before` (M1, M3), `after you have …` (M34) — plus the structural one: `sibling_named`
+requires an underscore or camelCase, so it is **blind to 352 dot- and hyphen-separated
+tool names** (`papers.list`, `list-available-slots`, `e-stat-get-stats-list`).
+
+On the floor sample those patterns look excellent: 6 of the 7 true rows. That number
+is worthless — the patterns were written *from* those rows. The out-of-sample measure
+is what they find in the other 8,072 missed tools:
+
+| gap | newly caught | % corpus |
+|---|---|---|
+| `call this to` | 39 | 0.30% |
+| `read/take it before` | 34 | 0.27% |
+| `use it as` | 12 | 0.09% |
+| `à appeler quand` | 2 | 0.02% |
+| `after you have` | 2 | 0.02% |
+| blind dot/hyphen siblings | 19 | 0.15% |
+| **union** | **106** | **0.83%** |
+
+The pooled floor says roughly **1,318** of the 8,112 missed tools do direct the agent.
+Every gap this floor could name accounts for **106 of them — 8.0%, and that assumes
+perfect precision.** Fixing all of it moves the detector from 36.77% to at most 37.59%.
+
+**So the lexicon is at its asymptote.** The remaining ~1,200 are not a pattern I have
+failed to write down; they are twelve hundred different sentences. The honest reading
+is that the hand-read estimate is the load-bearing one and the detector's job is now
+*diff over time* (which needs no recall at all — a description either changed or it
+did not), not measuring the level. Anyone continuing this should not write a sixth
+word list; they should either accept the 40% as a hand-read figure with a stated
+interval, or classify with a model and floor *that*.
 
 ### The two estimates agree, by different routes
 
 | method | estimate |
 |---|---|
 | 60 hand-read tools from the non-matching population, no lexicon involved | **40.1%** |
-| v2's rate, corrected by both hand-labelled strata and its own floor | **42.0%** |
+| v2's rate, corrected by both hand-labelled strata and its own floor (floor #1) | **42.0%** |
+| the same, on the **pooled 80-row floor** (fire 306) | **42.8%** |
 
 6.5 points from the v1 stratum at 67.3% precision, 26.1 from the newly-caught at 96%,
-9.5 from what is still missed at 15%. One route is pure hand-reading of a random
+10.3 from what is still missed at the pooled 16.25%. One route is pure hand-reading of a random
 sample; the other is a rewritten detector with three separately measured error rates.
 Landing 1.9 points apart is the strongest single piece of evidence in this folder, and
 it is worth more than either number alone.
