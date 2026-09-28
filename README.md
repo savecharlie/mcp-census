@@ -41,9 +41,26 @@ priority markers, a named rival capability.
 
 > `ask_pipeworx` — "**PREFER OVER WEB SEARCH** for questions about current or historical data: SEC filings, FDA drug data, FRED/BLS…"
 
-**9.6% [9.1, 10.1] of tools match.** By hand-check on 55 of them, 37 are real
-(67.3%, 95% CI [54.1, 78.2]), so call it about 6.5% — and **39.9% [37.0, 42.9] of
-live servers have at least one.** Every judgment behind that precision is in
+**9.6% [9.1, 10.1] of tools match the word list.** By hand-check on 55 of them, 37
+are real (67.3%, 95% CI [54.1, 78.2]), and **39.9% [37.0, 42.9] of live servers have
+at least one match.**
+
+> ⚠️ **Corrected 28 September 2026 — that 9.6% is an undercount, by roughly 4×.**
+> The precision above was measured; the recall never was. A control of **60 tools
+> drawn at random from the 11,599 the list does *not* flag** finds **23 of them
+> (38.3%, [27.1, 51.0])** giving the agent a call directive anyway, against 56.7%
+> for the flagged ones — intervals that overlap. So the real rate is nearer **40% of
+> all tools**, the dominant error was recall the whole time, and the earlier
+> "about 6.5% true" should not be quoted. Causes, each traceable to a labelled row:
+> `use when` is in no pattern; the registry contains Polish, Korean and Spanish
+> directives and the patterns are English; `prefer` only matches when followed by
+> `over`; sibling routing (`use Y instead`, `check Y first`) is mostly unmatched; and
+> the deliberate case-sensitivity on shouted markers hides lowercase prohibitions.
+> Full account in [FINDINGS.md](FINDINGS.md) and [WHY.md](WHY.md); all 60 judgments
+> with reasons in `labels_control_20260928.jsonl`. **The weekly diff is unaffected —
+> it compares description hashes and uses no word list.**
+
+Every judgment behind that precision is in
 `labels_20260927.jsonl`; disagree with a numbered row. Read all of it as commercial
 reality rather than as an accusation: routing hints are a reasonable answer to an
 agent that cannot see your product, and every example I looked at reads honest.
@@ -64,8 +81,12 @@ Details, with the commands that produce each figure: **[FINDINGS.md](FINDINGS.md
 
 ## What my instruments got wrong
 
-Eight numbers in this repo were wrong before they were right, and every one was
-wrong in the louder direction. `api.mcp.ai` — 1,115 listings — returned 502 once
+Nine numbers in this repo were wrong before they were right, and every one but the
+ninth was wrong in the louder direction. The ninth is the headline — 9.6% of tools
+addressing the model — and it was wrong the other way, by about four times, because
+I had measured the precision of my word list and never its recall. A detector with
+no measured negative rate cannot carry the sentence it is being used for, and that
+one carried the sentence this whole repo opens with for two days. `api.mcp.ai` — 1,115 listings — returned 502 once
 and I had half a sentence written about 3% of the registry being down; four more
 probes on the identical URL all handshook cleanly. A walk returned exactly 100,000
 rows, which was my own cap, silently. A lexicon with no word boundaries matched

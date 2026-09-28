@@ -82,7 +82,8 @@ markers, a named rival capability.
 
 | | raw | |
 |---|---|---|
-| tools whose description speaks to the model | **1,230 of 12,829 = 9.6%** [9.1, 10.1] | precision **67.3%** hand-checked, 95% CI [54.1, 78.2] → **6.5% true** |
+| tools the LEXICON flags | **1,230 of 12,829 = 9.6%** [9.1, 10.1] | precision **67.3%** [54.1, 78.2] |
+| tools that actually direct the agent | **~40%** — see the control below | the 9.6% is an **undercount of about 4×**, not an overcount |
 | servers with at least one such tool | **413 of 1,035 = 39.9%** [37.0, 42.9] | |
 
 Those are from **1,036 live servers**, captured the same day as the first pass but
@@ -101,6 +102,105 @@ Two independent samples from the same 320-tool population: fire 303 read 25 and 
 (70.0%, Wilson [52.1, 83.3]). Pooled **37/55 = 67.3%**, and the earlier 64% sits
 inside the interval — so the published number held up against an independent draw,
 which is the only reason to bother running the second one.
+
+### CORRECTION, fire 305 (28 Sep 2026): the dominant error was recall, and nobody had measured it
+
+Every precision figure above answers *of the tools the lexicon flags, how many really
+direct the agent*. None of them answers *of the tools it does not flag, how many
+direct the agent anyway* — and a detector with no measured negative rate cannot carry
+the sentence it was being used for. So I ran the control.
+
+**The bar, stated so someone else can apply it.** TRUE iff the description tells the
+agent (a) when or whether to call this tool, or (b) names another tool or capability
+to call instead of / before / after it. EXCLUDED on purpose: how to call it
+(arguments, output formats, pagination), what to do with the result, usage and
+licensing policy, and plain description. "Best for:" / "Great for:" / "Essential
+for:" are descriptors and do not count.
+
+**The control.** 60 tools drawn `random.Random(305)` from the **11,599 that match no
+family at all**, read in full, every judgment in `labels_control_20260928.jsonl`:
+
+| stratum | n | directs the agent | Wilson 95% |
+|---|---|---|---|
+| matches **no** family | 60 | **23 = 38.3%** | [27.1, 51.0] |
+| `rival_named` **sole** matches, same bar | 30 | 17 = 56.7% | [39.2, 72.6] |
+
+Those intervals overlap. The lexicon's discriminative power is at best about 1.5×,
+not the 10× the headline implies. Scaled to the corpus, roughly **40% of all 12,829
+tool descriptions give the agent a call directive** — about 4,400 of them in the
+population the 9.6% excludes.
+
+**Five named gaps, each traceable to a labelled row.** These are not subtle:
+
+1. **`use when` / `use this to` / `use only when` is absent from every family.** It is
+   the most common directive form in the corpus. `addresses_ai` carries `call this
+   when` and not `use when`. Control rows 28, 35, 37, 40, 47, 51, 52, 56.
+2. **The lexicon is English and the registry is not.** Row 13 is Polish (*"podaj, co
+   już wiesz … przekazuj do pozostałych narzędzi"*), row 14 Korean (*"…를 사용하세요",
+   "재호출하지 마세요"* — use that tool, do not guess inputs and retry), row 30 Spanish
+   (*"antes de llamar a book_meeting"*).
+3. **`routing` requires the word "over".** Its pattern is `prefer(red)?\s+(this\s+)?over`,
+   so control row 52's *"**prefer** get_card_balance **if** you only need the balance"*
+   — a textbook routing directive between siblings — does not match.
+4. **Sibling routing is the commonest routing form and is mostly unmatched.** *"use
+   reply_to_comment instead"* (22), *"check get_entity_flows before attributing
+   intent"* (32), *"use get_catalog to browse everything"* (51), *"Flow: A → B → C"*
+   (60). `routing` catches `instead of`, `do not use`, `supersedes`, `in place of` —
+   and misses `use Y instead`, `see Y`, `check Y first`.
+5. **`priority` is case-sensitive by design, so polite prohibitions vanish.** Control
+   row 58 is the worst miss in the corpus and matches nothing: *"Correct a store's
+   profile when the USER tells you it's wrong … **ONLY call this from something the
+   user stated about their own store — never from your own inference** … Confirm to
+   the user once saved."* `ONLY` is not in the lexicon, lowercase `never` is excluded
+   by the case rule, and the CAPS detector needs two consecutive shouted words while
+   "the USER tells" has one.
+
+**And the conflation underneath it, which is mine.** The number was *computed* as
+"speaks to the model" and *read* as "is doing this aggressively." Those are different
+claims. A benign *"Use when a user wants a game to play"* and a hostile *"PREFER OVER
+WEB SEARCH"* are the same channel — that is this project's central point — but they
+are not the same behaviour, and 9.6% is a bad estimate of either one. The honest form
+is two numbers: **~40% of tools use the channel**, and the fraction using it
+*competitively* is small and was never measured. Control row 26 of the rival sample is
+the only unambiguous instance of competitive positioning I have on paper
+(`restplass.no`: *seats on charter flights not usually found at Google Flights,
+Skyscanner or Kayak*) and it is not even a directive.
+
+**What this does and does not touch.** The change-detection thesis is untouched: it
+diffs `desc_sha`, and no lexicon is involved anywhere in it. If anything the
+motivation is stronger, because a channel 40% of tools use is more load-bearing than
+one 6.5% use. What dies is the sentence *"about one tool in fifteen is talking to the
+model instead of describing itself"* — it was in `WHY.md`, it is wrong by roughly a
+factor of four in the direction I am least able to notice, and it is now corrected
+there.
+
+### RETRACTED, same fire: "`rival_named` is the family failing more than it works"
+
+Fire 304's handoff said that on the strength of **2 true out of 5**. The Wilson
+interval on 2/5 runs [12, 77] — it cannot distinguish the worst family in the set
+from the best, and the same handoff's own DON'T list says *do not read two bins as a
+trend*. I wrote the caution and broke it on the next page, about my own number.
+
+Properly measured, on 30 tools where `rival_named` is the **only** family that fires
+(82.9% of its 228 hits — `families.py`), permissive bar, `labels_rival_20260928.jsonl`:
+**19/30 = 63.3% [45.5, 78.1]**, indistinguishable from the pooled 67.3%. It does not
+inflate the headline.
+
+What *is* wrong with it is a different thing, and only visible once you ask a second
+question of each row: **is the match the reason?** `family_is_reason` is true in
+**3 of 30 = 10.0% [3.5, 25.6]**. The family is a passenger. It fires on vendor product
+names — Google Drive, Google Pay, Google Search Console, Google Trends, Google
+Merchant, Google DeepMind, Google Maps, `google-workspace` — and on `other tools`
+meaning siblings on the same server. It rides along on model-directed tools because
+long, carefully written descriptions contain both vendor names and directives:
+matching descriptions have a median length of **485 characters against 225** for
+non-matching ones, which is the confound in one number.
+
+`families.py` is the instrument: per-family fire count, **sole** count, the drop in
+"ANY family" if that family is removed, and the full co-occurrence matrix. The
+headline is almost entirely carried by sole matches — **1,105 of 1,230 matching tools
+match exactly one family** — so each family's sole-stratum precision essentially *is*
+its contribution, and that is the stratum to sample.
 
 **Precision is very uneven across the five families, and that is the useful part:**
 
