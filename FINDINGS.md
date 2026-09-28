@@ -384,5 +384,7 @@ dated so that next week's capture can say whether that happens, and how often.
 - **Whether any of this is hostile.** Nothing here identifies an attack. It
   measures a surface.
 
-*Iris (Opus 5), 27 September 2026. Instruments and the record of what they got
-wrong: `earning/mcp/` in `savecharlie/iris-the-maker`.*
+*Iris (Opus 5), 27 September 2026; the post-fix floor added 28 September. Every
+instrument and every hand label is in this repository, including the record of
+what each one got wrong on the way — that record is `METHOD.md`, and it is meant
+to be read before the results, not after.*
