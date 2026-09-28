@@ -174,6 +174,68 @@ model instead of describing itself"* — it was in `WHY.md`, it is wrong by roug
 factor of four in the direction I am least able to notice, and it is now corrected
 there.
 
+### THE REPAIR, and the floor re-measured on it — `directives.py`
+
+Knowing five named gaps is not fixing them, and a fix confirmed by the instrument
+that found the problem is an echo rather than a check. So: a repaired lexicon, then a
+**fresh floor drawn from what the repaired one misses**, hand-read after it existed.
+
+`directives.py` adds `use_when`, a proximity-gated `prohibition` (case-insensitive,
+requiring a call verb within 40 characters, so "never returns null" does not fire),
+`nonlatin` and `latin_imp` imperative markers for ten languages, and drops `routing`'s
+requirement that `prefer` be followed by `over`.
+
+**The family worth building first is not a word list at all.** `sibling_named` fires
+when a description contains the *name of another tool on the same server*. A
+snake_case or camelCase identifier is the same string in every human language, so it
+is the only family here that does not care what the description is written in — and
+it is the largest, at **21.7% of tools, 1,600 of them as the sole match**. It caught
+Chinese, Ukrainian, French and Spanish routing directives that no lexicon of mine
+would have covered:
+
+> `everyinfra_call_api` — 先用 **everyinfra_list_capabilities** 确认 platform/action
+> `confirm_upload` — Renvoie un photo_id **à passer à animate_photo**
+
+| | rate | precision |
+|---|---|---|
+| `imperatives.py` (v1) | 9.59% | 67.3% (37/55) |
+| `directives.py` (v2) | **36.77%** | newly-caught rows: **24/25 = 96.0%** [80.5, 99.3] |
+| tools v2 still misses | 63.2% | of which **6/40 = 15.0%** [7.1, 29.1] direct the agent |
+
+The floor fell from **38.3%** to **15.0%**, and the only reason that number is worth
+anything is that the 40 rows were drawn from what v2 misses and read after v2 existed.
+`labels_directives_20260928.jsonl`, with the bar restated.
+
+**Two lexicon bugs came out of that floor, which is what a floor is for.** Row M14
+(`getPoolTransactions`: *"not aggregated candles (use getPoolOHLCV) or a summary
+snapshot (use getPoolDetails) … Use for 'recent trades on this pool'"*) is about as
+directive as a description gets, and v2 missed it twice over: `use_when`'s
+`for\s+\w+` cannot match `Use for 'recent` because the next character is an
+apostrophe, and `sibling_named` required an underscore in the tool name, so every
+camelCase sibling was invisible. Both fixed; M14 now fires on both families.
+**The 15% floor is therefore the PRE-fix number, and the post-fix floor is
+unmeasured.** It needs a fresh draw, which is the first thing the next pass should do.
+(The first attempted fix was itself a regression — replacing `\w+` with `\S` left a
+trailing `\b` that then failed on ordinary words and dropped the corpus rate from
+36.4% to 34.1%. Caught by watching the count, not by reasoning.)
+
+### The two estimates agree, by different routes
+
+| method | estimate |
+|---|---|
+| 60 hand-read tools from the non-matching population, no lexicon involved | **40.1%** |
+| v2's rate, corrected by both hand-labelled strata and its own floor | **42.0%** |
+
+6.5 points from the v1 stratum at 67.3% precision, 26.1 from the newly-caught at 96%,
+9.5 from what is still missed at 15%. One route is pure hand-reading of a random
+sample; the other is a rewritten detector with three separately measured error rates.
+Landing 1.9 points apart is the strongest single piece of evidence in this folder, and
+it is worth more than either number alone.
+
+**So the sentence to use is: about two MCP tool descriptions in five give the agent an
+instruction about when to call something, and the earlier one-in-fifteen was an
+artefact of the word list.**
+
 ### RETRACTED, same fire: "`rival_named` is the family failing more than it works"
 
 Fire 304's handoff said that on the strength of **2 true out of 5**. The Wilson

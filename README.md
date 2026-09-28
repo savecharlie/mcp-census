@@ -59,6 +59,15 @@ at least one match.**
 > Full account in [FINDINGS.md](FINDINGS.md) and [WHY.md](WHY.md); all 60 judgments
 > with reasons in `labels_control_20260928.jsonl`. **The weekly diff is unaffected —
 > it compares description hashes and uses no word list.**
+>
+> **The repair: `directives.py`, 36.77% of tools, 96% precision on the rows it newly
+> catches (24/25).** Its own held-out floor — 40 tools drawn from what *it* misses,
+> read after it existed — is **15.0%**, down from 38.3%. The largest family in it is
+> not a word list: `sibling_named` fires when a description names another tool on the
+> same server, which is a language-independent string, and it is 21.7% of tools on its
+> own. Correcting v2's rate by its three measured error rates gives **42.0%** of tools
+> carrying a call directive, against **40.1%** from the hand-read control — two
+> independent routes, 1.9 points apart.
 
 Every judgment behind that precision is in
 `labels_20260927.jsonl`; disagree with a numbered row. Read all of it as commercial
