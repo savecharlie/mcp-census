@@ -50,6 +50,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 import verdict
 
+try:
+    import tiktoken
+    _ENC = tiktoken.get_encoding("o200k_base")   # declared unit; no public Claude tokenizer
+except Exception:
+    _ENC = None
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 UA = "iris-mcp-census/0.1 (+https://github.com/savecharlie)"
 PROTO = "2025-06-18"
@@ -117,6 +123,23 @@ def fetch(url: str, timeout: float):
     return info, ((d2.get("result") or {}).get("tools") or []), None
 
 
+
+def _tool_row(t):
+    """One captured tool. Hash for diffing, text for reading, SIZES for pricing."""
+    desc = t.get("description") or ""
+    schema = json.dumps(t.get("inputSchema") or {}, sort_keys=True, ensure_ascii=False)
+    r = {"name": t.get("name", ""),
+         "desc": desc[:2000],
+         "desc_chars": len(desc),
+         "desc_sha": sha(desc),
+         "schema_sha": sha(json.dumps(t.get("inputSchema") or {}, sort_keys=True)),
+         "schema_chars": len(schema)}
+    if _ENC is not None:
+        r["name_tok"] = len(_ENC.encode(r["name"]))
+        r["desc_tok"] = len(_ENC.encode(desc))
+        r["schema_tok"] = len(_ENC.encode(schema))
+    return r
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--probe", default=None)
@@ -154,12 +177,14 @@ def main() -> int:
             if tools is None:
                 row["error"] = err
                 return row
-            row["tools"] = [{"name": t.get("name", ""),
-                             "desc": (t.get("description") or "")[:2000],
-                             "desc_sha": sha(t.get("description") or ""),
-                             "schema_sha": sha(json.dumps(
-                                 t.get("inputSchema") or {}, sort_keys=True))}
-                            for t in tools]
+            # desc_cap: the 2000-char truncation is kept (a capture is a diff
+            # baseline, not an archive) but the TRUE length is recorded, so the
+            # length distribution is no longer right-censored by our own cap.
+            # schema_tok/schema_chars: the inputSchema is half of what a tool
+            # declaration costs an agent's context window and fire 312 could only
+            # price the description half, because the Sep 27 capture stored a hash
+            # and nothing else. See contextcost.py.
+            row["tools"] = [_tool_row(t) for t in tools]
             row["n_tools"] = len(row["tools"])
         except urllib.error.HTTPError as e:
             row["error"] = f"http {e.code}"

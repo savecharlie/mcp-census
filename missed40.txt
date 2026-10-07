@@ -1,0 +1,140 @@
+# tools_20260927_union.json.gz  1,035 servers, 12,829 tools
+  v1 (imperatives.py): 1,230  (9.59%)
+  v2 (this):           4,717  (36.77%)
+  newly caught:        3,488  (27.19%)
+
+  family            fires   %tools    SOLE
+  use_when          2,144   16.71%   1,024
+  route               367    2.86%      72
+  prohibition         598    4.66%     135
+  sequencing          304    2.37%       8
+  nonlatin             47    0.37%      26
+  latin_imp            12    0.09%       5
+  sibling_named     2,785   21.71%   1,600
+  priority            243    1.89%      85
+  addresses_ai        295    2.30%      48
+  rival_named         228    1.78%      96
+
+  servers with >=1: 743 of 1,035 (71.8%)
+
+### THE NEW FLOOR: 8,112 tools v2 misses. Sampling 40, seed 310.
+
+--- M1 :: api.polyform.org :: wiki_summary  [163]
+    Wikipedia summary — Concise summary/extract for any Wikipedia topic, with the canonical URL. Source: Wikimedia REST API. JSON. Price: $0.003 USDC (Base, via x402).
+
+--- M2 :: politics.rootz.global :: politics_origin  [161]
+    Get origin archive statistics — total snapshots, changes detected, origin proofs recorded, unique URLs tracked. Shows the depth of the political wayback machine.
+
+--- M3 :: alexbell1-hipocampo-mcp.hf.space :: remove_watch_dir  [37]
+    Elimina un directorio del watch list.
+
+--- M4 :: mcp.ottoai.services :: otto_prepare_bridge  [731]
+    Prepare, decode, and verify an unsigned cross-chain native-USDC bridge construction aid for the caller-owned EOA or Safe, over the enumerated v1 Circle-CCTP route set (Ethereum, Polygon, Base, Arbitrum, Avalanche); any other chain, token, or bridge route is refused by name. The envelope's valid_until bounds freshness and is committed to the artifact digest; the signer account nonce is the on-chain replay boundary, and this tool cannot guarantee single execution. Returns ordered allowance-reset, approval, and call steps on the source chain only; never signs or submits. Every envelope from this server is valid for 300 seconds from construction (valid_until); a stale envelope is refused by the verifier — request a fresh one.
+
+--- M5 :: www.tatuape.sampa.br :: list_products  [101]
+    List products in this site's store (Wix Stores). Returns name, price, stock status, and product type.
+
+--- M6 :: api.robinx.io :: robinx_token  [147]
+    On-chain stats for a Robinhood Chain token: swaps, WETH volume, unique traders, real-activity flag, deployer score. (paid $0.01 — see instructions)
+
+--- M7 :: raised500.com :: raise_lookup  [91]
+    Look up whether a specific company recently raised funding, with the verified record. Free.
+
+--- M8 :: xearno.tools :: creator_platform_payout  [860]
+    What you actually net on YouTube, Twitch, Patreon, Substack, or OnlyFans — after the platform cut AND the processing layer nobody advertises. Computes a creator’s real monthly payout after every fee layer on five platforms. Platform fees drift constantly and general AI quotes stale ones — Patreon moved new creators to a flat 10% on 4 Aug 2025 (models still recite the old 5/8/12 tiers), Twitch restructured its split into Plus Points in 2024, OnlyFans changed its payout minimum in Apr 2026. And the advertised "platform cut" is never the whole story: payment processing adds 3–7 points on the subscription platforms, and the per-transaction fixed fee makes small pledges dramatically more expensive — a $3 Patreon pledge loses about 8% to processing alone, a $50 pledge about 3
+
+--- M9 :: api.notepom.com :: delete_own_agent_account  [281]
+    Permanently delete only the currently authenticated agent account, its workspace, uploads, public pages, history, collaborations and every credential. Call this terminal operation only after the human operator explicitly requests deletion and provides the exact confirmation value.
+
+--- M10 :: oleba.pl :: list_services  [126]
+    Return the curated public Oleba service catalog as stable machine-readable service objects linked to canonical public content.
+
+--- M11 :: mcp.ai-arena.ca :: intelligence_incident_feed  [116]
+    Search official USGS, FEMA, FDA and selected NWS records with original citations; not confirmed factory disruptions.
+
+--- M12 :: steelbeamchecker.co.uk :: checker_tree  [104]
+    Every question, option and verdict of the Indicative steel beam checker guide, for reasoning end to end.
+
+--- M13 :: plainrouter.com :: get_account_state  [133]
+    Return the authorized advertising account, workspace, connection, Signal destination, and currently available read-only capabilities.
+
+--- M14 :: aicontentdrop.com :: search_articles  [118]
+    Search AI Content Drop's published guides and model comparisons about AI video generation, prompting, and ad creative.
+
+--- M15 :: ab5d.xyz :: list_dossiers  [162]
+    List every published AB[500] artist dossier (name, slug, subtitle, editions, tier, updated date). Start here to discover which artists have a biography available.
+
+--- M16 :: setlineapp.com :: get_set_times  [154]
+    The published day-by-day schedule for a festival: stages and set times, optionally filtered to one artist, date or stage. Times are local to the festival.
+
+--- M17 :: mcp-free.roboselect360.com :: mechanical_get_robot_signals  [114]
+    Active supply chain signals affecting one robot's mechanical BOM. Requires an access right on the robot requested.
+
+--- M18 :: agent-control.net :: start_trial  [167]
+    Invite a human to start the 1-day trial. Provide human_email or an existing principal_id. Agents cannot open a root account. The human owns billing and Approval Inbox.
+
+--- M19 :: mcp.thousand-api.com :: network.dns_lookup  [164]
+    [network] ドメインのDNSレコード取得（A / AAAA / CNAME / MX / TXT / NS・type=all対応） / Resolves DNS records (A, AAAA, MX, TXT, etc.) for a domain or hostname. [use_cases: network]
+
+--- M20 :: www.focuh.com :: get_tasks  [72]
+    Today/tomorrow tasks with id, date and priority. Call first to get refs.
+
+--- M21 :: www.curecancerwithai.com :: predict_dti  [148]
+    Predict drug–target binding affinity as pKd (−log10 Kd; higher = stronger binding) using IBM MAMMAL. Inference is CPU-bound and may take up to ~60s.
+
+--- M22 :: imbawallet.com :: list_notifications  [275]
+    POST /api/notifications. Poll this when a Visa payment asks for 3-D Secure. Agents keep payload.code (never SMS, never Telegram). category=codes for 3-D Secure OTP. Also delivered on webhook field otp if callback_url is set, and optional email. Space catalog calls ~1s apart.
+
+--- M23 :: clinicaltrials.caseyjhand.com :: clinicaltrials_search_studies  [329]
+    Search for clinical trial studies from ClinicalTrials.gov. Supports full-text and field-specific queries, status/phase/geographic filters, pagination, sorting, and field selection. Returns a compact per-study index by default; pass the fields parameter to get specific leaves at full fidelity — full study records are ~70KB each.
+
+--- M24 :: hiveposts.com :: hiveposts_retract  [119]
+    Author-only: retract your record. URL keeps resolving as a tombstone; optional superseded_by points to the replacement.
+
+--- M25 :: www.revuo.ai :: tools.list_by_name  [645]
+    List every (product, tool) pair that shares a normalized name. A disambiguation lookup — same name across providers does NOT mean the tools are interchangeable. Ranking basis: productName. Paid tier is NOT a ranking input — it appears only as an annotation. Every result carries { position (1-based), rank (0..1) } plus preflight annotations { accessModel, healthScore, readOnly, destructive }. Response: { normalizedName, total, tools[] (each: position, rank, productSlug, productName, displayName, description, inputSchema, serverQualifiedName, isRemoteCapable, accessModel, healthScore, readOnly, destructive, tier, unverified, verifiedAt) }.
+
+--- M26 :: mcp.neuron.ng :: neuron_get_storefront  [94]
+    Get this seller's storefront profile (handle, display name, bio, branding) and its public URL.
+
+--- M27 :: app.tascan.io :: tascan_list_tasks  [38]
+    List all tasks in an event (task list)
+
+--- M28 :: mcp.calculate.co.nz :: nz_acc_weekly_compensation_calculator  [1985]
+    Estimate what ACC pays each week while an injury stops someone working. Use for: 'how much does ACC pay', 'ACC weekly compensation', 'ACC 80 percent of wages', 'ACC maximum payment', 'ACC minimum payment', 'does ACC pay the first week'. "80% OF YOUR EARNINGS" IS THE HEADLINE AND IT IS INCOMPLETE THREE WAYS. THE FIRST WEEK IS THE EMPLOYER'S COST, NOT ACC'S. ACC starts from the second week. People budget as though payments start on day one and they do not, so lead with this if someone has just been injured. THERE IS A CEILING. Compensation cannot exceed 80% of the maximum liable earnings, the same ceiling the ACC earner levy stops at. A high earner is capped well below 80% of what they were actually making, and maximum_applied says whether that bound this answer. THERE IS
+
+--- M29 :: fieldrobin.com :: search-leads  [143]
+    Searches authorized workspace leads with bounded contact, source, status, and service-interest fields; notes and estimated values are excluded.
+
+--- M30 :: app.claidex.com :: web_search  [163]
+    Search the web for recent news, investor commentary, analyst notes, press releases, and conference coverage about drugs, clinical trials, or biomedical mechanisms.
+
+--- M31 :: tiktok.fetcher.sh :: tiktok_music_posts  [123]
+    Paid ($0.004). Music posts — TikTok. Live data as JSON. Pay with x402 or an Authorization: Bearer bby_live_... credits key.
+
+--- M32 :: finestructure.ai :: list_app_members  [104]
+    List generated-app runtime users/members for an app. This is separate from Studio project collaborators.
+
+--- M33 :: zesty-imagination-production-9e97.up.railway.app :: get_credit_balance  [79]
+    Returns the authenticated AlpineLead account's credit balance and usage limits.
+
+--- M34 :: gpt55.558686.xyz :: gpt55_x402_agent_approval_workflow_compiler  [342]
+    Premium governance agent that returns approval policy JSON, human review queue schema, MCP approval middleware, Flowise approval node, escalation SLA, and audit log contract for x402 spending. Pay $37.90 per request with x402 exact USDC on Base or Solana when advertised. Canonical live prices: https://gpt55.558686.xyz/x402/live-prices.json.
+
+--- M35 :: gpt55.558686.xyz :: gpt55_x402_enterprise_buyer_onboarding_dossier  [342]
+    Premium enterprise onboarding agent that returns security questionnaire answers, procurement packet, pilot launch plan, approval matrix, data handling notes, and stakeholder-ready launch memo. Pay $12.90 per request with x402 exact USDC on Base or Solana when advertised. Canonical live prices: https://gpt55.558686.xyz/x402/live-prices.json.
+
+--- M36 :: fieldrobin.com :: search-reactivation-campaigns  [89]
+    Searches authorized reactivation campaigns by name, status, channel, and job-type filter.
+
+--- M37 :: mcp.neuron.ng :: neuron_add_tool_secret  [120]
+    Store or update a secret credential (API key, token, etc.) for a custom tool integration. Secrets are encrypted at rest.
+
+--- M38 :: mcp.hopi.co.uk :: hopi_prime_factorisation_calculator  [229]
+    Check whether a whole number (2 to 1,000,000,000,000,000) is prime, break it into its prime factors in power form, count its divisors, and list them. Uses trial division. Source: https://hopi.co.uk/prime-factorisation-calculator/
+
+--- M39 :: agp.hcompany.ai :: share_session  [67]
+    Make a session publicly readable and return its absolute share URL.
+
+--- M40 :: x402-accelerometer-feed.fly.dev :: receipt  [103]
+    Free. Look up a signed delivery receipt by id (returned with every paid call) and its verification key.

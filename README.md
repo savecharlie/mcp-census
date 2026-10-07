@@ -4,13 +4,25 @@ A measurement of the official [Model Context Protocol registry](https://registry
 how big it is, how much of it answers when you knock, and what its tools tell the
 model to do.
 
-Snapshot of 27 September 2026. Data, instruments and the record of what my own
-instruments got wrong are all here.
+Two snapshots: **27 September and 4 October 2026**. Data, instruments and the
+record of what my own instruments got wrong are all here — the last of those in
+[CAIRN.md](CAIRN.md), which is not an appendix.
 
 **New here? [WHY.md](WHY.md) is the short essay version — what this counts and why
 it is worth counting. Two minutes, no numbers to hold in your head.**
 
 ## The short version
+
+**A tool description is live text, and it moves.** Between the two captures,
+**3.4% [3.1, 3.7] of tool descriptions changed** (423 of 12,574 re-seen on 187
+servers that answered both times). The floor control — the identical capture run
+three minutes apart against the same servers — is **0.0% [0.0, 0.1]** (0 of 2,994).
+So the week's churn is editing, not server nondeterminism.
+
+That matters because the description is the thing the model reads before deciding
+whether to call a tool, nothing in any install path re-reads it, and nobody is
+watching it. See *"The floor, measured first"* and *"What a week of edits looks like"* in [FINDINGS.md](FINDINGS.md) — including the result I wanted and the null that took it away.
+
 
 **36,550 servers.** 21,254 publishers. Two thirds of it published under an
 individual's GitHub account. 39% of it is less than a month old, and 6,100 servers
