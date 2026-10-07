@@ -405,3 +405,24 @@ objective quality rule available — DNS-verified company namespace rather than
 `com.abyssfallgame/mcp`. **DON'T go looking for a popularity signal in the
 registry again; it is not there.** A cohort that matters has to be named by hand,
 and `BRANDS` in `vendors.py` is that list, published to be argued with.
+
+### Two more of mine, same fire, both caught by checking a number I had PUBLISHED
+
+**4. I published "53 brands absent from the registry" having only measured that
+my own resolver didn't resolve them.** 50 of the 53 are in there. The question I
+answered was about my instrument; the sentence I wrote was about the world. The
+check cost four minutes and I ran it only because the claim felt too strong as I
+read it back. **DON'T write a sentence about the registry from a result about the
+resolver.**
+
+**5. `brand_surface` reported 24,974 brand-bearing listings of 36,550.** `github`
+is in `BRANDS` and `io.github.*` is 24,415 listings, so every hobbyist namespace
+counted as a GitHub brand hit. `SURFACE_EXCLUDE` now holds it and must keep
+holding it. The per-brand rows were correct the whole time; only the total was
+poisoned, which is exactly the shape that survives a skim. **DON'T measure a
+brand whose name is also registry syntax.**
+
+Also fixed in `org_owns()`: `org == brand` missed `Snowflake-Labs` and
+`getsentry`, and plain `brand in org` wrongly claims `io.github.asanabrial` for
+Asana. Normalise, then allow only a documented decoration (`ORG_PREFIX` /
+`ORG_SUFFIX` / `ALIASES`). Cohort 40 -> 42.

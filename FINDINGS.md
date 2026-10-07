@@ -732,8 +732,15 @@ they depend on.
 ## What came back
 
 93 brands named · **40 resolved** to a listing whose ownership is provable ·
-53 absent from the registry entirely (no Slack, no Datadog, no Snowflake,
-no Salesforce, no Twilio, no MongoDB).
+53 that my resolver did not resolve.
+
+**That second number was published as "absent from the registry entirely" and
+that was wrong — corrected an hour later, below.** 50 of the 53 do appear in
+listings; what is absent is a *vendor-published* one. Two of them, `snowflake`
+and `sonarqube`, have a vendor listing my resolver missed outright
+(`io.github.Snowflake-Labs/mcp`, `io.github.SonarSource/sonarqube-mcp-server`)
+because it required the GitHub org label to equal the brand exactly. Fixed; the
+cohort is now **42**.
 
 Of the 40, **32 declare a streamable-http remote and were attempted**:
 
@@ -787,3 +794,94 @@ credential from anyone. Only the *contents* are sealed.
   the brand, and the chosen row is printed for audit (`--resolve-only --verbose`).
 - `square`, `netlify` and `jfrog` resolved to false matches on the first pass and
   are now rejected or absent; see `CAIRN.md`.
+
+
+---
+
+# 44 brands' names are in the registry, on servers the brand does not publish
+
+*Fire 325, 7 Oct 2026, an hour after the sheet above. `vendors.py --brandsurface`.*
+
+## This section exists because I published a wrong number and went to check it
+
+The sheet above said *53 of 93 brands absent from the registry entirely* and
+listed Slack, Datadog, Snowflake, Salesforce, Twilio and MongoDB. I had only ever
+asked whether **my resolver** found a vendor-owned listing, and then written down
+a claim about **the registry**. Those are different sentences. Searching every
+listing for a bare mention put **50 of the 53** back on the board.
+
+Two of them were my resolver failing: `io.github.Snowflake-Labs/mcp` and
+`io.github.SonarSource/sonarqube-mcp-server` are vendor-published, and the
+matcher demanded `org == brand`, so `Snowflake-Labs` and `SonarSource` fell out.
+That is now a normalised match with a documented decoration set, and the cohort
+is 42 rather than 40.
+
+The other 48 turned out to be the interesting half.
+
+## What is actually there
+
+Matching the brand as a whole **token** in a listing's registry name or title —
+never as a substring, see the method note below — across all 36,550 listings:
+
+| | |
+|---|---|
+| brands measured (`github` excluded, see below) | **92** |
+| brands whose name appears on ≥1 listing | **85** |
+| brands with a **vendor-published** listing | **41** |
+| **brands whose name appears ONLY on servers published by someone else** | **44** |
+| brand-bearing listings in total | **549** |
+| …published by the vendor | 41 |
+| …published by a third party | **508 (92.5%)** |
+
+So for 44 of 92 well-known brands — Slack, Salesforce, Shopify, QuickBooks,
+Zendesk, HubSpot, MongoDB, Xero, SendGrid, ClickUp — every MCP server in the
+registry carrying that name belongs to somebody else.
+
+## And a handful of publishers hold most of it
+
+| publisher | distinct brands' names held |
+|---|---|
+| `io.github.pipeworx-io` | **41** |
+| `com.mcparmory` | **29** |
+| `io.github.sadri-dridi` | 12 |
+| `ai.smithery` | 10 |
+| `io.github.codespar` | 9 |
+| `io.github.mindstone` | 9 |
+| `io.github.mrfentmen` | 8 |
+| `io.usefulapi` | 6 |
+
+Two publishers between them hold the names of **70** of the 92 brands I named.
+`com.mcparmory/asana`, `com.mcparmory/datadog`, `com.mcparmory/launchdarkly`,
+`io.github.pipeworx-io/twilio`, `/zendesk`, `/plaid`, `io.usefulapi/freshdesk` —
+one server per SaaS brand, by one author.
+
+None of this is an accusation of malice. A wrapper around a public API is a
+legitimate thing to publish, and `gateway.pipeworx.io` is openly a gateway. The
+finding is about **what the registry lets a reader conclude**, which is nothing:
+
+- Namespace verification proves `com.mcparmory` controls `mcparmory.com`. It
+  says nothing whatever about Asana. The verification that exists is not the
+  verification a reader assumes.
+- There is no `official` flag, no vendor attestation, and — as established in the
+  sheet above — no downloads, stars or installs to break the tie by popularity.
+- So the ranking signal available to someone searching the registry for "slack"
+  is the name, and the name is the one thing a third party can choose freely.
+
+Put beside the other half of today's result, the two compound badly: the
+vendor's own server is behind a **401** in 28 of 32 cases, so the listing you
+*can* open and read is disproportionately the one the vendor did not write.
+
+## Method note: a token, never a substring
+
+Substring matching produced `box` = 154 hits (`inbox`, `mailbox`), `render` = 245
+(`onrender.com`), `wise` = 52 (`loopwise`, `asterwise`), `wiz` = 22 (`wizideo`),
+and claimed `io.github.asanabrial/leteo` for Asana. Splitting the registry name
+and title into alphanumeric tokens and demanding an exact token removes all of
+it.
+
+**`github` is excluded from this count and has to be.** It is the registry's own
+namespace convention — `io.github.*` is 24,415 listings — so every hobbyist
+listing carries it as a token, and the first run of this measurement reported
+**24,974** brand-bearing listings of 36,550 before I looked at the total and saw
+it could not be true. A brand that is also registry syntax cannot be measured
+this way, and I have no number for GitHub here.

@@ -36,14 +36,14 @@ any team pays for. Every apparent brand hit was a false positive — `regsentry.
 **And the servers you actually depend on are sealed.** `vendors.py` names 93
 brands by hand — because the registry has no downloads, no stars, no installs,
 and therefore cannot tell you which of its 36,550 servers anyone runs — resolves
-**40** of them to a listing whose ownership is provable, and probes the 32 that
+**42** of them to a listing whose ownership is provable, and probes the 32 that
 declare a streamable-http remote:
 
 | | | |
 |---|---|---|
 | **401, auth required** | **28** | **88%** of those attempted |
 | answered unauthenticated | 4 | `clerk` · `cloudflare` · `exa` · `upstash` |
-| package-only, no remote to watch | 7 | `auth0` · `brave` · `browserbase` · `firecrawl` · `pagerduty` · `perplexity` · `snyk` |
+| package-only, no remote to watch | 9 | `auth0` · `brave` · `browserbase` · `firecrawl` · `pagerduty` · `perplexity` · `snowflake` · `snyk` · `sonarqube` |
 | declared SSE, not attempted | 1 | `prisma` |
 
 All 28 returned exactly 401. The four that answer are **documentation and search**
@@ -52,9 +52,35 @@ servers — `search_cloudflare_documentation`, `web_search_exa`,
 Linear, Atlassian, Sentry, PayPal, Supabase, Vercel and Zapier are all behind a
 token. **So the tool description — the text an agent is handed and trusts, and the
 channel A2M (arXiv:2609.26761) measures 93.6% of malicious invocation through —
-is publicly auditable precisely where it matters least.** 53 of the 93 brands,
-including Slack, Datadog, Snowflake, Salesforce, Twilio and MongoDB, are not in
-the registry at all.
+is publicly auditable precisely where it matters least.**
+
+**And the listing you *can* read is usually not the vendor's.** Matching each
+brand as a whole token across all 36,550 listings — `github` excluded, because
+`io.github.*` is 24,415 listings and the brand is also the registry's own
+syntax — **44 of 92 brands have their name only on servers published by somebody
+else**, and of 549 brand-bearing listings **508 (92.5%)** are third-party. Two
+publishers hold the names of **70** of the 92 between them:
+`io.github.pipeworx-io` (41 brands) and `com.mcparmory` (29) —
+`com.mcparmory/asana`, `com.mcparmory/datadog`, `io.github.pipeworx-io/twilio`,
+`io.usefulapi/freshdesk`, one per SaaS brand, by one author. Slack, Salesforce,
+Shopify, QuickBooks, Zendesk, HubSpot, MongoDB and Xero have no vendor-published
+server here at all.
+
+That is not an accusation — a wrapper around a public API is a legitimate thing
+to publish, and `gateway.pipeworx.io` is openly a gateway. It is a statement
+about what the registry lets a reader conclude, which is nothing. Namespace
+verification proves `com.mcparmory` controls `mcparmory.com`; it says nothing
+about Asana. There is no official flag, no vendor attestation, and no usage
+signal to break the tie — so the only ranking signal is the name, and the name is
+the one thing a third party picks freely.
+
+**An earlier version of this section said "53 of the 93 brands are not in the
+registry at all." That was wrong and it was mine.** I had measured only that my
+own resolver failed to resolve them and then written a sentence about the
+registry. 50 of the 53 are in there. Two, `snowflake` and `sonarqube`, are
+vendor-published and my matcher dropped them for requiring the GitHub org label
+to equal the brand exactly (`Snowflake-Labs`, `SonarSource`). Both are in the
+cohort now, which is 42. The correction is in `FINDINGS.md` and `CAIRN.md`.
 
 One caveat I will not bury: this is **one timepoint**. There is no churn rate for
 this cohort yet, because nobody had ever captured it; `vendors_20261007.json.gz`

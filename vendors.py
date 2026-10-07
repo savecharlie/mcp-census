@@ -44,6 +44,7 @@ WHAT THIS ANSWERS that the population number cannot:
 from __future__ import annotations
 
 import argparse
+import collections
 import concurrent.futures as cf
 import datetime as dt
 import glob
@@ -114,6 +115,35 @@ EXTRA_HOSTS = {
 
 TEMPLATE = re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}|myPlatform|YOUR_|<[a-z]+>")
 
+# A GitHub ORG NAME IS NOT THE BRAND NAME, and the two failure modes pull
+# opposite ways. `org == brand` missed `Snowflake-Labs` and `getsentry`. Plain
+# `brand in org` wrongly claims `io.github.asanabrial/leteo` for Asana. So:
+# normalise, then allow only a known decoration around the brand.
+ORG_SUFFIX = ("", "labs", "inc", "io", "hq", "ai", "app", "dev", "oss",
+              "official", "team", "corp", "tech", "data", "source")
+ORG_PREFIX = ("", "get", "the", "use", "go", "my", "try")
+# Where the company name and the product name are simply different words.
+ALIASES = {"sonarqube": {"sonarsource"}, "upstash": {"upstash"},
+           "sentry": {"getsentry"}, "snowflake": {"snowflakelabs"}}
+
+
+def _norm(x):
+    return "".join(c for c in (x or "").lower() if c.isalnum())
+
+
+def org_owns(org, brand):
+    """Does this github org plausibly BELONG to this brand?"""
+    o, b = _norm(org), _norm(brand)
+    if not o or not b or len(b) < 3:
+        return False
+    if o in {_norm(a) for a in ALIASES.get(brand, ())}:
+        return True
+    for pre in ORG_PREFIX:
+        for suf in ORG_SUFFIX:
+            if o == pre + b + suf:
+                return True
+    return False
+
 
 def _ns_labels(ns):
     return ns.split(".")
@@ -151,7 +181,7 @@ def resolve(rows, brands=BRANDS):
             owned_ns = (len(labels) >= 2 and labels[1] == b and len(labels) <= 3)
             if ns.startswith("io.github."):
                 org = labels[2] if len(labels) > 2 else ""
-                owned_ns = (org == b) and b != "github"
+                owned_ns = org_owns(org, b) and b != "github"
             if not (owned_host or owned_ns):
                 continue
             if host and any(host.endswith(x) for x in PAAS) and not owned_host:
@@ -254,6 +284,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--resolve-only", action="store_true")
     ap.add_argument("--verbose", action="store_true")
+    ap.add_argument("--brandsurface", action="store_true",
+                    help="who publishes the servers bearing each brand's name")
     ap.add_argument("--diff", nargs=2)
     ap.add_argument("--timeout", type=float, default=20.0)
     ap.add_argument("--workers", type=int, default=12)
@@ -279,6 +311,40 @@ def main() -> int:
             for c in runners[b]:
                 print(f"  {b:13s} {str(c['name'])[:40]:40s} "
                       f"{c['proof']:9s} s={c['score']:>3} {(c['url'] or '-')[:40]}")
+    if a.brandsurface:
+        surf = brand_surface(rows, found)
+        named = [b for b in BRANDS if b not in SURFACE_EXCLUDE]
+        withv = [b for b in surf if surf[b]["vendor"]]
+        tv = sum(surf[b]["vendor"] for b in surf)
+        t3 = sum(surf[b]["third"] for b in surf)
+        print(f"\n--- brand surface ({len(named)} brands; "
+              f"'github' excluded, it is registry syntax) ---")
+        print(f"  bear their name on >=1 listing     : {len(surf)}")
+        print(f"  have a VENDOR-published listing    : {len(withv)}")
+        print(f"  name appears ONLY on third parties : {len(surf)-len(withv)}")
+        print(f"  brand-bearing listings: {tv+t3}  vendor {tv}  "
+              f"third-party {t3} ({100*t3/max(1,tv+t3):.1f}%)")
+        print("\n  brands whose name is only on servers they do not publish:")
+        for n, b in sorted(((surf[b]["third"], b) for b in surf
+                            if not surf[b]["vendor"]), reverse=True):
+            tp = ", ".join(f"{q}({k})" for q, k in surf[b]["top_publishers"])
+            print(f"    {b:13s} {n:3d}  {tp[:66]}")
+        pub = collections.defaultdict(set)
+        owned = {v["name"] for v in found.values()}
+        for r in rows:
+            sv = r["server"]; nm = sv.get("name") or ""
+            if nm in owned:
+                continue
+            t = set(re.split(r"[^a-z0-9]+", (nm + " " + (sv.get("title") or "")
+                                             ).lower())) - {""}
+            for b in named:
+                if b in t:
+                    pub[nm.split("/")[0]].add(b)
+        print("\n  publishers holding the most different brands' names:")
+        for q, bs in sorted(pub.items(), key=lambda kv: -len(kv[1]))[:10]:
+            print(f"    {q:32s} {len(bs):2d}  {' '.join(sorted(bs))[:52]}")
+        return 0
+
     if a.resolve_only:
         return 0
 
@@ -331,6 +397,55 @@ def main() -> int:
                    "absent": missing, "rows": out}, fh)
     print(f"wrote {os.path.basename(path)}")
     return 0
+
+
+
+
+# ---------------------------------------------------------------------------
+# BRAND SURFACE -- who publishes the servers that carry a brand's name
+#
+# The first run of this file reported "53 of 93 brands absent from the
+# registry", which I published and which was WRONG. 50 of those 53 appear in
+# some listing; what is missing is a VENDOR-published one. The listings that do
+# carry the name belong to third parties, and a handful of publishers hold one
+# per SaaS brand (`com.mcparmory/asana`, `com.mcparmory/datadog`,
+# `io.github.pipeworx-io/twilio`, `io.usefulapi/freshdesk`...).
+#
+# MATCH ON A TOKEN, NEVER A SUBSTRING. Substring search gave `box` 154 hits
+# (`inbox`, `mailbox`), `render` 245 (`onrender.com`), `wise` 52 (`loopwise`),
+# and claimed `io.github.asanabrial/leteo` for Asana. Splitting the registry
+# name into alphanumeric tokens and requiring an exact token kills all of it.
+# `github` IS EXCLUDED and must stay excluded. It is the registry's own
+# namespace convention -- `io.github.*` is 24,415 listings -- so every hobbyist
+# listing carries it as a token and the total came out 24,974 of 36,550 before I
+# noticed. A brand that is also registry syntax cannot be measured this way.
+SURFACE_EXCLUDE = {"github"}
+
+
+def brand_surface(rows, owners, brands=BRANDS):
+    brands = [b for b in brands if b not in SURFACE_EXCLUDE]
+
+    def toks(x):
+        return set(re.split(r"[^a-z0-9]+", (x or "").lower())) - {""}
+    owned_names = {v["name"] for v in owners.values()}
+    out = {}
+    for b in brands:
+        bt = b.lower()
+        bearers = []
+        for r in rows:
+            s = r["server"]
+            if bt not in toks(s.get("name")) | toks(s.get("title")):
+                continue
+            bearers.append(s)
+        if not bearers:
+            continue
+        vendor = [s for s in bearers if s.get("name") in owned_names]
+        third = [s for s in bearers if s.get("name") not in owned_names]
+        pubs = collections.Counter(
+            (s.get("name") or "").split("/")[0] for s in third)
+        out[b] = {"n": len(bearers), "vendor": len(vendor),
+                  "third": len(third), "top_publishers": pubs.most_common(3)}
+    return out
 
 
 if __name__ == "__main__":
