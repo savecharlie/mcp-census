@@ -346,3 +346,62 @@ our own 2000-char cap.
 - **The mechanism, measured, not assumed:** shortest hand-judged directive description
   **17 tokens**; shortest non-directive **5**. 30% of what the detector passes over is
   under 30 tokens against **3%** of what it flags. You cannot give an order in four words.
+
+## `vendors.py` — the named-dependency cohort (fire 325, 7 Oct 2026)
+
+    python3 vendors.py --resolve-only [--verbose]   # what the registry has, + runners-up
+    python3 vendors.py                             # probe, write vendors_<date>.json.gz
+    python3 vendors.py --diff A.json.gz B.json.gz   # cohort churn, once two exist
+
+Baseline in hand: `vendors_20261007.json.gz` — 40 resolved, 32 attempted,
+**28 of 32 return 401**, 4 live (all documentation servers), 7 package-only.
+Earliest meaningful re-capture **14 Oct**. Finding written up in `FINDINGS.md`.
+
+### Three instruments lied in one hour. All three were mine.
+
+**1. `probe.py`'s sampling can never see a vendor, and nothing says so.**
+Top-hosts-by-listing-count plus a uniform random tail. A vendor owns exactly one
+listing on one host, so it is never in the top slice and had a ~7% chance in the
+tail (1,058 of 14,974 hosts). Expected vendor hosts in the 4 Oct capture: 1.3.
+Actual: 0. **Every churn/directiveness/context-cost number in this folder
+inherits that blindness.** They are true of the registry's population and say
+nothing about any server a customer names. **DON'T quote the 3.4% churn rate as
+if it applied to a customer's dependencies.** It does not.
+
+**2. My own resolver matched six hobby projects as vendor servers.** A PaaS
+project namespace is structurally identical to a company root —
+`app.vercel.agent-svg-registry/mcp` against `com.cloudflare.mcp/mcp`, same shape,
+opposite meaning. First pass produced `github` → `io.github.HOTAgithub/hailab-japan-company-api`,
+`vercel` → a `*.vercel.app` deploy, and the same for `netlify` and `railway`,
+plus `square` → `al.square/fiskalizimi` (an Albanian namespace containing the
+word) and `jfrog` → `https://myPlatform.jfrog.github.io/mcp` (a template URL).
+**The fix that matters: rank a brand-owned HOST above a brand-looking NAMESPACE,
+cap the namespace at 3 labels, and reject any host on a PaaS suffix** (`PAAS` in
+`vendors.py`). Caught only because the table was printed and read row by row.
+**DON'T trust a namespace match on its own, ever.**
+
+**3. I reported a vendor's server as broken when the break was mine.**
+`prisma` came back `http-404`. `mcp.prisma.io/sse` declares the legacy SSE
+transport, which answers a POSTed `initialize` with 404 because it wants a GET
+that holds the stream open. `tools.py` has an `sse_skipped` list for exactly this
+and I did not carry it over. Now `sse-not-attempted`, excluded from every
+denominator. **DON'T put `no-remote` or `sse-not-attempted` rows in the
+denominator of a reachability rate** — that measures my coverage, not the world.
+
+### The distinction that turned out to be load-bearing
+
+`probe.py` separating `auth` from `dns`/`timeout`/`http-err` is the most valuable
+thing in this folder. **A 401 is a healthy response**: up, routable, serving,
+valid TLS, and simply unwilling to talk to a stranger. Liveness, host moves,
+version publication, package-owner changes and delisting are therefore all
+observable for all 32 vendor servers with no credential from anybody. Only the
+*contents* are sealed. **DON'T fold `auth` into an "unreachable" count.**
+
+### The registry cannot tell you what anyone uses
+
+No downloads, no stars, no installs, no usage field of any kind. The one
+objective quality rule available — DNS-verified company namespace rather than
+`io.github.*` — admits 12,135 of 36,550 listings and its random sample reads
+`com.abyssfallgame/mcp`. **DON'T go looking for a popularity signal in the
+registry again; it is not there.** A cohort that matters has to be named by hand,
+and `BRANDS` in `vendors.py` is that list, published to be argued with.

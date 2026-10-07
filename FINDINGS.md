@@ -689,3 +689,101 @@ so rather than quoting 3.3% and 3.4% interchangeably.
   order; one of the two schema changes measured at the 3-minute floor is that.
 - **DON'T quote fire 312's 383-token median server.** The real median
   declaration cost is 1,234 tokens; the old number omitted two thirds of the bill.
+
+---
+
+# The churn rate was measured on a population with no customer's dependency in it
+
+*Fire 325, 7 Oct 2026. Instrument: `vendors.py`. Baseline: `vendors_20261007.json.gz`.*
+
+## The defect in my own census
+
+`probe.py` samples hosts two ways: the top hosts by listing count, plus a uniform
+random tail. Every vendor publishes **one** listing on **one** host, so no vendor
+can ever reach the top slice, and the tail drew 1,058 of 14,974 hosts — about 7%.
+With ~18 vendor hosts in the 27 Sep registry, the expected number reaching the
+sample is **1.3**. The 4 Oct capture got **zero**.
+
+So the headline — *3.4% [3.1, 3.7] of tool descriptions changed in seven days,
+against a 0.0% [0.0, 0.1] same-day floor* — is measured on 1,015 paired hosts of
+which not one is a server any team pays for. Checked by hand, every apparent
+brand hit was a false positive: `regsentry.com` (an unrelated company),
+`io.github.*` (hobbyist namespaces, not GitHub), and `*.supabase.co` /
+`*.vercel.app` (customer deploys on a platform, not the platform).
+
+The number is not wrong. It is about a population that **cannot contain the thing
+a customer would name.** That is a sampling defect, and `vendors.py` is the repair.
+
+## There is no field in the registry that identifies a server anyone uses
+
+Before hand-naming anything I tested the one objective rule available — *namespace
+is a DNS-verified company domain rather than `io.github.*`*. It admits **12,135**
+of 36,550 listings, and a seeded random sample of them reads
+`com.abyssfallgame/mcp`, `com.aiurion/agentic-3d-printing`,
+`com.mapadecaborojo/puerto-rico`. Domain verification proves somebody bought a
+domain for ten dollars.
+
+No downloads, no stars, no installs, no usage of any kind. **The registry does not
+know which of its 36,550 servers anyone runs.** So the cohort is a written-down
+list of 93 brands, published in `vendors.py` so it can be argued with — which is
+also the only honest model for a product, because only the customer knows what
+they depend on.
+
+## What came back
+
+93 brands named · **40 resolved** to a listing whose ownership is provable ·
+53 absent from the registry entirely (no Slack, no Datadog, no Snowflake,
+no Salesforce, no Twilio, no MongoDB).
+
+Of the 40, **32 declare a streamable-http remote and were attempted**:
+
+| | | |
+|---|---|---|
+| **401, auth required** | **28** | **88%** of attempted |
+| live, answered unauthenticated | 4 | clerk · cloudflare · exa · upstash |
+| package-only (no remote to watch) | 7 | auth0 · brave · browserbase · firecrawl · pagerduty · perplexity · snyk |
+| declared SSE, not attempted | 1 | prisma |
+
+Every one of the 28 returned exactly **401** — no 403s, no ambiguity.
+
+## The shape of it, which is the actual finding
+
+The four servers that answer an unauthenticated `tools/list` are:
+
+    clerk        clerk_sdk_snippet, list_clerk_sdk_snippets
+    cloudflare   search_cloudflare_documentation, migrate_pages_to_workers_guide
+    exa          web_search_exa, web_fetch_exa
+    upstash      resolve-library-id, query-docs          (Context7)
+
+All four are **documentation and search** servers. They are open because they hold
+nothing. Every vendor server that touches an account — Stripe, Notion, GitHub,
+Linear, Atlassian, Sentry, PayPal, Supabase, Vercel, Zapier — is behind a token.
+
+**Tool-description monitoring is publicly available exactly where it matters least.**
+The channel A2M (arXiv:2609.26761) measures 93.6% malicious-invocation through —
+the tool description an agent is handed and trusts — is, for 88% of the servers a
+company actually connects to its agents, visible only to whoever holds the
+credential. Not to a researcher, not to an auditor, and not to a census.
+
+## And the one that cuts the other way: a 401 is a healthy response
+
+`probe.py` has always separated `auth` from `dns`, `timeout` and `http-err`, which
+turns out to be the load-bearing distinction in the whole product. A server that
+answers 401 is **up, routable, serving, and TLS-valid** — everything except
+willing to talk to a stranger. So liveness, host moves, version publication,
+package-owner changes and delisting are all observable for all 32, today, with no
+credential from anyone. Only the *contents* are sealed.
+
+## Honest limits of this sheet
+
+- **One timepoint.** There is no cohort churn rate yet, because I had never
+  captured these hosts before; this is the baseline that makes the next one
+  possible. Earliest meaningful re-capture: **14 Oct**.
+- **The cohort is a judgement**, not a sample, and it is not weighted by anyone's
+  real usage, which nothing available can measure.
+- **`io.github.<org>` is ambiguous by construction.** Sentry, Grafana, PostHog,
+  PlanetScale, Clerk, Upstash and GitHub itself all publish under it, next to
+  24,415 hobbyist listings. The resolver accepts it only when the org label *is*
+  the brand, and the chosen row is printed for audit (`--resolve-only --verbose`).
+- `square`, `netlify` and `jfrog` resolved to false matches on the first pass and
+  are now rejected or absent; see `CAIRN.md`.

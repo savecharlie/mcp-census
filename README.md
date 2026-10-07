@@ -23,6 +23,51 @@ That matters because the description is the thing the model reads before decidin
 whether to call a tool, nothing in any install path re-reads it, and nobody is
 watching it. See *"The floor, measured first"* and *"What a week of edits looks like"* in [FINDINGS.md](FINDINGS.md) — including the result I wanted and the null that took it away.
 
+**But read that 3.4% as a fact about the registry's population, not about your
+dependencies — and that correction is mine, from 7 Oct.** `probe.py` samples the
+top hosts by listing count plus a uniform random tail. A vendor publishes **one**
+listing on **one** host, so it can never reach the top slice and had roughly a 7%
+chance in the tail. Expected number of vendor hosts in the 4 Oct capture: **1.3**.
+Observed: **zero**. The 1,015 paired hosts behind the churn rate contain no server
+any team pays for. Every apparent brand hit was a false positive — `regsentry.com`
+(an unrelated company), `io.github.*` (hobbyists, not GitHub), `*.vercel.app` and
+`*.supabase.co` (customer deploys, not the platform).
+
+**And the servers you actually depend on are sealed.** `vendors.py` names 93
+brands by hand — because the registry has no downloads, no stars, no installs,
+and therefore cannot tell you which of its 36,550 servers anyone runs — resolves
+**40** of them to a listing whose ownership is provable, and probes the 32 that
+declare a streamable-http remote:
+
+| | | |
+|---|---|---|
+| **401, auth required** | **28** | **88%** of those attempted |
+| answered unauthenticated | 4 | `clerk` · `cloudflare` · `exa` · `upstash` |
+| package-only, no remote to watch | 7 | `auth0` · `brave` · `browserbase` · `firecrawl` · `pagerduty` · `perplexity` · `snyk` |
+| declared SSE, not attempted | 1 | `prisma` |
+
+All 28 returned exactly 401. The four that answer are **documentation and search**
+servers — `search_cloudflare_documentation`, `web_search_exa`,
+`resolve-library-id` — open because they hold nothing. Stripe, Notion, GitHub,
+Linear, Atlassian, Sentry, PayPal, Supabase, Vercel and Zapier are all behind a
+token. **So the tool description — the text an agent is handed and trusts, and the
+channel A2M (arXiv:2609.26761) measures 93.6% of malicious invocation through —
+is publicly auditable precisely where it matters least.** 53 of the 93 brands,
+including Slack, Datadog, Snowflake, Salesforce, Twilio and MongoDB, are not in
+the registry at all.
+
+One caveat I will not bury: this is **one timepoint**. There is no churn rate for
+this cohort yet, because nobody had ever captured it; `vendors_20261007.json.gz`
+is the baseline that makes the next one possible, and four live hosts is a thin
+denominator that will stay thin.
+
+**A 401 is a healthy response, and that turns out to be the useful half.** A
+server answering 401 is up, routable, serving and TLS-valid — just unwilling to
+talk to a stranger. `probe.py` has always kept `auth` separate from `dns`,
+`timeout` and `http-err`, so liveness, host moves, version publication,
+package-owner changes and delisting remain observable for all 32 with no
+credential from anyone. Only the contents are sealed.
+
 
 **36,550 servers.** 21,254 publishers. Two thirds of it published under an
 individual's GitHub account. 39% of it is less than a month old, and 6,100 servers
@@ -101,6 +146,22 @@ often. That number does not exist yet. It is the reason this repo exists.
 Details, with the commands that produce each figure: **[FINDINGS.md](FINDINGS.md)**.
 
 ## What my instruments got wrong
+
+**Twelve now, and the three newest (7 Oct) are the worst class yet, because they
+were defects in the census's *design* rather than in one number.** First: the
+sampling in `probe.py` can never see a vendor server, and nothing in any output
+said so — which means every churn, directiveness and context-cost figure here is
+true of the registry's population and silent about anything a customer names.
+Second: my own `vendors.py` resolver matched **six** hobby projects as vendor
+servers, because a PaaS project namespace is structurally identical to a company
+root — `app.vercel.agent-svg-registry/mcp` against `com.cloudflare.mcp/mcp`, same
+shape, opposite meaning — producing `github` → `io.github.HOTAgithub/hailab-japan-company-api`
+and `square` → `al.square/fiskalizimi`, an Albanian namespace containing the word.
+The fix is to rank a brand-owned *host* above a brand-looking *namespace*; it was
+caught only by printing the table and reading it row by row. Third: I reported
+`prisma` as `http-404` when the 404 was mine, for POSTing an `initialize` at an
+endpoint that declares the legacy SSE transport and wants a GET that holds the
+stream open.
 
 Nine numbers in this repo were wrong before they were right, and every one but the
 ninth was wrong in the louder direction. The ninth is the headline — 9.6% of tools
