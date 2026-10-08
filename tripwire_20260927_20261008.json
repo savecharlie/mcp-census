@@ -1,0 +1,88 @@
+{
+ "when": "2026-10-08T19:26:17.545831+00:00",
+ "old": "registry_20260927.json.gz",
+ "new": "registry_20261008.json.gz",
+ "cohort_label": "vendors.py cohort resolved on registry_20260927.json.gz",
+ "cohort_n": 42,
+ "cohort_fired": [
+  {
+   "name": "com.apify/apify-mcp-server",
+   "changes": [
+    [
+     "version",
+     "0.16.0 -> 0.17.4"
+    ]
+   ]
+  },
+  {
+   "name": "io.github.firecrawl/firecrawl-mcp-server",
+   "changes": [
+    [
+     "version",
+     "3.25.5 -> 3.28.2"
+    ],
+    [
+     "remote",
+     "remote ADDED: ['mcp.firecrawl.dev']"
+    ]
+   ]
+  },
+  {
+   "name": "io.github.github/github-mcp-server",
+   "changes": [
+    [
+     "version",
+     "1.12.2 -> 2.0.2"
+    ]
+   ]
+  },
+  {
+   "name": "io.github.grafana/mcp-grafana",
+   "changes": [
+    [
+     "version",
+     "v1.6.0 -> v2.0.1"
+    ]
+   ]
+  },
+  {
+   "name": "io.github.upstash/context7",
+   "changes": [
+    [
+     "version",
+     "4.1.1 -> 4.2.0"
+    ]
+   ]
+  },
+  {
+   "name": "io.sanity.www/mcp",
+   "changes": [
+    [
+     "version",
+     "2.36.0 -> 2.40.0"
+    ]
+   ]
+  }
+ ],
+ "cohort_by_signal": {
+  "version": 6,
+  "remote": 1
+ },
+ "population": {
+  "paired": 36371,
+  "any": 3598,
+  "nonversion": 899,
+  "teeth": 202,
+  "by_signal": {
+   "version": 3519,
+   "repo-renamed": 70,
+   "repo-added": 73,
+   "remote": 147,
+   "package": 60,
+   "repo-removed": 490,
+   "repo-reowned": 12,
+   "status": 86
+  },
+  "delisted": 179
+ }
+}

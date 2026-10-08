@@ -4,9 +4,9 @@ A measurement of the official [Model Context Protocol registry](https://registry
 how big it is, how much of it answers when you knock, and what its tools tell the
 model to do.
 
-Two snapshots: **27 September and 4 October 2026**. Data, instruments and the
-record of what my own instruments got wrong are all here — the last of those in
-[CAIRN.md](CAIRN.md), which is not an appendix.
+Three snapshots: **27 September, 4 October and 8 October 2026**. Data,
+instruments and the record of what my own instruments got wrong are all here —
+the last of those in [CAIRN.md](CAIRN.md), which is not an appendix.
 
 **New here? [WHY.md](WHY.md) is the short essay version — what this counts and why
 it is worth counting. Two minutes, no numbers to hold in your head.**
@@ -32,6 +32,67 @@ Observed: **zero**. The 1,015 paired hosts behind the churn rate contain no serv
 any team pays for. Every apparent brand hit was a false positive — `regsentry.com`
 (an unrelated company), `io.github.*` (hobbyists, not GitHub), `*.vercel.app` and
 `*.supabase.co` (customer deploys, not the platform).
+
+## The registry grew 11.6% in eleven days, and 98% of what moves is a version bump
+
+*8 Oct 2026. `tripwire.py`, 27 Sep → 8 Oct, `tripwire_20260927_20261008.json`.*
+
+**36,550 → 40,800 servers** — 402 new listings a day. 36,371 paired by name,
+4,429 new, **179 gone**.
+
+`tripwire.py` diffs two snapshots on the fields that constitute a server's
+identity — version, declared remote, package owner, repository, registry status,
+and simple absence. It needs no probe, no token and no credential, so unlike the
+tool-description churn above it works for all 40,800 servers including the 28 of
+32 vendor servers sealed behind a 401.
+
+What it finds, over eleven days, on the 36,371 paired servers:
+
+| signal | servers | rate |
+|---|---|---|
+| version | 3,519 | 9.68% |
+| repository field **removed** | 490 | 1.35% |
+| remote (added / removed / moved / retyped) | 147 | 0.40% |
+| status changed | 86 | 0.24% |
+| repository added | 73 | 0.20% |
+| repository renamed, same org | 70 | 0.19% |
+| package owner or registry changed | 60 | 0.16% |
+| **repository re-owned to a different org** | **12** | **0.03%** |
+| delisted entirely | 179 | 0.49% |
+
+**3,519 of the 3,598 servers that changed anything — 97.8% — changed only their
+version**, which is news the package registry already pushes you. So the rate
+that matters to anyone watching a dependency:
+
+| | rate / 11 days | per dependency per **year** |
+|---|---|---|
+| any change | 9.9% [9.6, 10.2] | 3.3 |
+| excluding bare version bumps | 2.5% [2.3, 2.6] | **0.82** |
+| security-relevant only¹ | 0.6% [0.5, 0.6] | **0.18** |
+
+¹ package owner or registry changed · repository re-owned to a different org ·
+status changed · delisted · remote host genuinely **moved** — not added, not
+removed.
+
+**So a named MCP dependency changes what it declares, in a way worth waking
+someone for, about once every five and a half years.** That is a real signal and
+it is not a stream, and the difference matters if you are deciding whether to
+watch for it.
+
+**The hand-named vendor cohort adds nothing to that**, and I checked instead of
+hoping: 6 of its 42 servers fired (14.3% [6.7, 27.8]), 1 non-version, 0
+security-relevant. At the population rate you would expect 1.04 and 0.23. Both
+observations are exactly what the population predicts (P = 0.37 and 0.79), so
+with n = 42 the cohort is not a second measurement. Use the population figure.
+
+**Four of my five instrument failures here would have made these numbers look
+bigger** — a package comparison that counted the version living inside a
+container tag (330 → 60 after the fix), a repository comparison that reported a
+*dropped field* as a moved source (1.77% → 0.03%, off by 54×), an *added* remote
+printed as a *moved* host, and a cohort-vs-population comparison n = 42 cannot
+resolve. All five are in [CAIRN.md](CAIRN.md). The fifth is why this capture
+exists at all: `pull_registry.py` walked 409 pages with no retries and one
+transient HTTP 500 destroyed the whole snapshot.
 
 **And the servers you actually depend on are sealed.** `vendors.py` names 93
 brands by hand — because the registry has no downloads, no stars, no installs,

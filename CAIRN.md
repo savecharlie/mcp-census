@@ -426,3 +426,56 @@ Also fixed in `org_owns()`: `org == brand` missed `Snowflake-Labs` and
 `getsentry`, and plain `brand in org` wrongly claims `io.github.asanabrial` for
 Asana. Normalise, then allow only a documented decoration (`ORG_PREFIX` /
 `ORG_SUFFIX` / `ALIASES`). Cohort 40 -> 42.
+
+---
+
+## Fire 327, 8 Oct 2026 — `tripwire.py`, and five more of my own rulers
+
+**DON'T run a multi-page cursor walk without retries.** `pull_registry.py` walked
+409 pages with none, died on one transient HTTP 500 inside the first 49, and
+wrote nothing — destroying an eleven-day snapshot interval. The registry was
+healthy either side (`limit=100&version=latest` → 200 in 0.58 s). At 409 pages a
+0.3% per-request failure rate loses two thirds of all attempts. Retries 5xx/429
+and transport errors now, never 4xx (a 422 means the URL is wrong).
+
+**DON'T count a package change without stripping the version out of the
+identifier first.** A container tag and an mcpb release URL both carry the
+version *inside* the package identifier, so a plain comparison reports
+`ghcr.io/github/github-mcp-server:1.12.2 -> :2.0.2` as a package event. It is
+the version event, already counted. Population rate 330 → **60** after the fix;
+cohort 3 → **0**. The inflation lands exactly on the servers that ship
+containers, i.e. disproportionately on vendors, i.e. on the cohort that decides
+the product.
+
+**DON'T call a remote ADDED a remote MOVED.** firecrawl had no declared remote
+and acquired `mcp.firecrawl.dev`; my first output said `host moved: [] -> [...]`.
+A dependant who was running it locally is now offered a cloud endpoint — a
+different event from a host swapped under them, and conflating them errs toward
+sounding more alarming.
+
+**DON'T report a repository-URL change as "the source moved".** 645 servers fired
+it over eleven days. **490 simply dropped the field**, 73 added it, 70 renamed
+inside the same org, and **12** landed on a different host+org. The security-
+relevant rate is 0.03%, not the 1.77% a bare field comparison gives — off by
+**54×**. The signal is now four separate signals and only `repo-reowned` is in
+`TEETH`.
+
+**DON'T put a cohort rate beside a population rate without asking whether the
+cohort can resolve the difference.** 6/42 (14.3%) next to 3598/36371 (9.9%) looks
+like a finding and is not one: expected cohort firings at the population rate are
+1.04 non-version (observed 1, P=0.37) and 0.23 security-relevant (observed 0,
+P=0.79). The cohort adds no information. The Poisson consistency check is in the
+script now rather than in my head.
+
+**The load-bearing conventions of `tripwire.py`, so the next me does not change
+them by accident:**
+- **Follow registry NAMES, resolved ONCE from the OLDER snapshot.** A customer
+  writes down a server, not a brand. Re-resolving per snapshot swaps which
+  listing is watched and then reports the swap as a change.
+- **`TEETH` is the only set a security alarm should wake anyone for:** `package`
+  (owner/registry, version-stripped), `repo-reowned`, `status`, `delisted`, and
+  `remote` only when the detail says `MOVED`. Everything else is either news the
+  package registry already sends (version — **97.8% of all firings**) or a
+  publishing artifact.
+- **A 401 is still a healthy response** and liveness still lives in `probe.py`.
+  Tier 1 is deliberately credential-free and says nothing about reachability.

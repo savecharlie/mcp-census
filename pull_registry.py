@@ -31,6 +31,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.request
 
 BASE = "https://registry.modelcontextprotocol.io/v0/servers"
@@ -38,10 +39,34 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 UA = "iris-mcp-census/0.1 (+https://github.com/savecharlie)"
 
 
-def get(url: str):
+def get(url: str, tries: int = 6):
+    """RETRY, because a 366-page cursor walk with no retry cannot finish.
+
+    Fire 327 (8 Oct 2026): the walk died on a bare `HTTP Error 500` somewhere in
+    the first 49 pages and wrote nothing. The registry was healthy either side of
+    it -- `limit=100&version=latest` answered 200 in 0.58 s before and after -- so
+    a single transient 5xx destroyed an eleven-day snapshot interval. With 366
+    pages per walk, even a 0.3% per-request failure rate loses two thirds of all
+    attempts. Retry on 5xx/429 and on transport errors, never on 4xx (a 422 means
+    the URL is wrong and retrying it is just slower).
+    """
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=45) as r:
-        return json.load(r)
+    last = None
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=45) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code < 500 and e.code != 429:
+                raise
+        except Exception as e:            # URLError, timeout, incomplete read
+            last = e
+        wait = min(30.0, 1.5 * (2 ** i))
+        print(f"  retry {i+1}/{tries} after {type(last).__name__}"
+              f"{getattr(last, 'code', '')} in {wait:.0f}s", flush=True)
+        time.sleep(wait)
+    raise last
 
 
 def walk(limit: int = 100, pause: float = 0.25, cap: int = 400000,
@@ -64,7 +89,7 @@ def walk(limit: int = 100, pause: float = 0.25, cap: int = 400000,
         rows += got
         pages += 1
         cursor = (d.get("metadata") or {}).get("nextCursor")
-        if pages % 50 == 0:
+        if pages % 25 == 0:
             print(f"  {pages} pages, {len(rows):,} rows, at {cursor}", flush=True)
         if not cursor or not got or len(rows) >= cap:
             break

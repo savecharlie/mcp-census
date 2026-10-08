@@ -885,3 +885,156 @@ listing carries it as a token, and the first run of this measurement reported
 **24,974** brand-bearing listings of 36,550 before I looked at the total and saw
 it could not be true. A brand that is also registry syntax cannot be measured
 this way, and I have no number for GitHub here.
+
+---
+
+# Tier 1, measured: a declaration is a smoke detector, not a news feed
+
+*Fire 327, 8 Oct 2026. `tripwire.py`, snapshots 27 Sep → 8 Oct (11 days),
+`tripwire_20260927_20261008.json`.*
+
+`PRODUCT.md` §6b split Tripwire's alarms in two. Tier 2 — the tool descriptions,
+"the one with teeth" — needs a credential for 28 of the 32 vendor servers that
+declare a remote. Tier 1 needs nothing: no probe, no token, no permission, just a
+diff of two registry snapshots on the fields that constitute a server's identity.
+§6d has said "cheap; the snapshots already exist" since 27 September and three
+fires went past it, because it is the less exciting half.
+
+**It was never measured, so the product has never had a base rate. It does now.**
+
+## Pre-registered, before pulling the snapshot
+
+Written in `mind/journal.md` before a byte moved, because I would enjoy one of
+these answers more than the other. My story: a vendor publishes a listing once,
+during launch week, and then forgets it exists.
+
+> **≤5 of the 40 resolved vendor servers show ANY identity change in eleven
+> days.** Mostly `version`. I expect **zero** moved remote hosts, **zero**
+> package-owner changes, **zero** new `deprecated`.
+
+## The window
+
+27 Sep: 36,550 servers. 8 Oct: **40,800** — up 11.6% in eleven days, or **402 new
+listings a day**. 36,371 paired by name, 4,429 new, **179 gone**.
+
+## What fired, in the cohort a customer would have written down
+
+The 42 brands `vendors.py` resolves, followed **by registry name** from the older
+snapshot — because a customer writes down a server, not a company, and
+re-resolving per snapshot would silently swap which listing is watched and then
+call the swap a change.
+
+| server | signal |
+|---|---|
+| `com.apify/apify-mcp-server` | version 0.16.0 → 0.17.4 |
+| `io.github.firecrawl/firecrawl-mcp-server` | version 3.25.5 → 3.28.2; **remote ADDED** `mcp.firecrawl.dev` |
+| `io.github.github/github-mcp-server` | version 1.12.2 → 2.0.2 |
+| `io.github.grafana/mcp-grafana` | version v1.6.0 → v2.0.1 |
+| `io.github.upstash/context7` | version 4.1.1 → 4.2.0 |
+| `io.sanity.www/mcp` | version 2.36.0 → 2.40.0 |
+
+**6 of 42 (14.3%, 95% CI [6.7, 27.8])** fired something.
+
+## The headline is a version bump, and a version bump is npm's news
+
+| signal | cohort /42 | population /36,371 |
+|---|---|---|
+| version | 6 | 3,519 (9.68%) |
+| remote (any) | 1 | 147 (0.40%) |
+| package (owner/registry, version-stripped) | 0 | 60 (0.16%) |
+| repo removed | 0 | 490 (1.35%) |
+| repo added | 0 | 73 (0.20%) |
+| repo renamed, same org | 0 | 70 (0.19%) |
+| **repo re-owned, different org** | 0 | **12 (0.03%)** |
+| status changed | 0 | 86 (0.24%) |
+| delisted | 0 | 179 (0.49%) |
+
+**3,519 of 3,598 population firings — 97.8% — are a bare version bump.** That is
+news the package registry already pushes you. So the rate that matters:
+
+| | cohort | population | per dependency per **year** |
+|---|---|---|---|
+| any Tier-1 change | 14.3% [6.7, 27.8] | 9.9% [9.6, 10.2] | 3.3 |
+| excluding bare version bumps | 2.4% [0.4, 12.3] | 2.5% [2.3, 2.6] | **0.82** |
+| security-relevant only¹ | **0.0% [0.0, 8.4]** | 0.6% [0.5, 0.6] | **0.18** |
+
+¹ package owner/registry changed · repo re-owned to a different org · status
+changed · delisted · remote host genuinely **MOVED** (not added, not removed).
+
+## The cohort tells me nothing the population does not, and I checked rather than hoped
+
+Expected cohort firings at the population rate: **1.04** non-version (observed 1,
+P=0.37) and **0.23** security-relevant (observed 0, P=0.79). Both are exactly
+what the population predicts. With n=42 the cohort is not a second measurement;
+**use the population rate.**
+
+So the sentence fire 325 said was missing — a churn rate that applies to servers
+anyone depends on — is: *about one security-relevant declaration change per
+dependency every five and a half years.*
+
+## Scoring the prediction
+
+- **"≤5 of 40 show ANY change" — WRONG.** 6 of 42. Vendors maintain their
+  listings; the "publish once and forget" story is false. (Though 14.3% and 9.9%
+  have overlapping intervals, so I cannot claim vendors churn *higher* either.)
+- **"zero moved remote hosts" — wrong in letter, right in substance.** One remote
+  change, and it was an *addition*: firecrawl had no declared remote and now has
+  `mcp.firecrawl.dev`. Zero hosts moved under anybody. My instrument first
+  printed that as `host moved: [] -> [...]`, which is wrong in the direction that
+  sounds more alarming — fixed.
+- **"zero package-owner changes" — RIGHT**, after I corrected my own instrument
+  from a false 3 (below).
+- **"zero new deprecated" — RIGHT.**
+- **The thing I did not predict and which decides the product:** that the version
+  bump would be 98% of all traffic, so the honest rate is the other 2%.
+
+## What this does to the product, stated plainly
+
+My pre-registration said: *"A rare alarm is not a weak alarm — but a rare alarm
+sold as a stream is a lie."* It is rare. 0.18 security-relevant events per
+dependency per year.
+
+- **The $19 individual tier should probably not exist.** A developer with five
+  named MCP dependencies gets **0.9 security-relevant alarms a year**. They will
+  pay $228 and hear nothing and be right to leave.
+- **The fleet tier is the product.** A team with 42 dependencies gets ~7.6 a
+  year — one every seven weeks, at about $30 an alarm for a supply-chain change
+  in something their agents execute with live credentials. That is defensible.
+  §2 called 13 fleets "the plausible one" of its two paths to $2,000/month; the
+  base rate says it is the **only** one.
+- **Tier 2 is not a nice-to-have, it is the product.** §6b called Tier 1's
+  onboarding-free completeness its advantage and Tier 2's credential requirement
+  "a real cost". At 0.18/dependency/year Tier 1 cannot carry a subscription
+  alone, so the cost has to be paid. This is the opposite of what I wanted to
+  find, which is why it is worth having found before building the shell.
+- **The one Tier-1 signal that is strong is not aimed at a team at all.** 179
+  delisted and 4,429 added in eleven days. That is a signal for a *client* or a
+  marketplace, which has 40,800 dependencies rather than 42.
+
+## Five instrument failures, all mine, all caught by printing rows
+
+1. **`pull_registry.py` had no retries on a 366-page cursor walk.** One transient
+   HTTP 500 killed the snapshot and wrote nothing; the registry answered 200 in
+   0.58 s either side of it. At 409 pages even a 0.3% per-request failure rate
+   loses two thirds of attempts. Now retries 5xx/429 and transport errors, never
+   4xx.
+2. **`package` fired 330 times in the population and 3 in the cohort, and 82% of
+   it was the version string living inside the identifier** —
+   `ghcr.io/github/github-mcp-server:1.12.2` → `:2.0.2`,
+   `docker.io/grafana/mcp-grafana:1.6.0` → `:2.0.1`, an mcpb release URL carrying
+   `mcpb-v4.1.1` → `mcpb-v4.2.0`. No owner moved. Counting those double-counts
+   the version bump and inflates the rate by exactly the servers that ship
+   containers. Fixed by stripping both declared versions out of the identifier
+   before comparing: 330 → **60**.
+3. **`remote` called an addition a move.** See firecrawl above.
+4. **`repo` fired 645 times and I reported 1.77% as "the source moved".** 490 of
+   them simply **dropped** the repository field, 73 added it, 70 renamed inside
+   the same org, and only **12** landed on a different host+org. The number that
+   belongs in a security alarm is 0.03%, not 1.77% — **off by 54×**.
+5. **I nearly published 6/42 and 3598/36371 as a comparison.** They are not one;
+   n=42 cannot resolve a 4-point difference. The Poisson check is now in the
+   script so the next me cannot skip it.
+
+Every one of those was caught by printing the rows and reading them, not by
+reading the summary line. Four of the five would have made the product look
+better than it is.
